@@ -141,7 +141,6 @@
             flex-direction: column;
         }
 
-
         h3 {
             text-align: center;
             margin-bottom: 10px;
@@ -166,11 +165,9 @@
             box-sizing: border-box;
         }
 
-
         .value {
             color: lightblue;
         }
-
 
         .custom-legend.horizontal {
             display: flex;
@@ -254,7 +251,93 @@
             cursor: not-allowed;
         }
 
-
+        #toggleButton {
+            background: #ff8c00;
+            color: #1a1a1a;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+        }
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+        }
+        .label-row label,
+        .input-row input {
+            flex: 1;
+            text-align: left;
+        }
+        .input-row input {
+            padding: 10px;
+            font-size: 14px;
+            color: #ff8c00;
+            background: #333;
+            border: none
+        }
+        .button-row {
+            display: flex;
+            gap: 20px;
+        }
+        .button-row button {
+            flex: 1;
+            padding: 10px 15px;
+            cursor: pointer;
+            background: #ff8c00;
+            color: #1a1a1a;
+            border: none
+        }
+        .frame-row {
+            display: flex;
+            gap: 20px;
+        }
+        .response-frame {
+            flex: 1;
+            padding: 10px;
+            background-color: #333;
+            min-height: 100px;
+            text-align: center;
+            word-wrap: break-word;
+            border: none
+        }
+        .put-row {
+            display: flex;
+            gap: 20px;
+        }
+        .put-row label {
+            font-weight: bold;
+        }
+        .put-row input,
+        .put-row textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            color: #ff8c00;
+            background: #333;
+            border: none
+        }
+        .put-row button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -275,7 +358,6 @@
                                style="flex: 1; background-color: lightgray;">
                     </div>
                 </div>
-
             </div>
             <div>
                 <label for="hoSinrDifference">hoSinrDifference (dB):</label>
@@ -341,6 +423,68 @@
             <button type="button" onclick="resetSim('/reset_simulation')" id="reset_button" disabled>Reset</button>
         </form>
     </div>
+    <button id="toggleButton">A1 policy manager</button>
+    <div id="frameContainer" class="hidden">
+        <div class="container">
+            <!-- GET Inputs and Buttons Row -->
+            <div class="label-row">
+                <label for="param1">POLICY TYPE id:</label>
+                <label for="param2">POLICY INSTANCE id:</label>
+            </div>
+            <div class="input-row">
+                <input id="param1" placeholder="Enter POLICY TYPE id to fetch or create:" />
+                <input id="param2" placeholder="Enter POLICY INSTANCE id to fetch or create:" />
+            </div>
+            <div class="button-row">
+                <button id="fetchData1">Get POLICY TYPE list</button>
+                <button id="fetchData2">Get JSON body of POLICY TYPE id from "POLICY TYPE id:" field </button>
+                <button id="fetchData3">Get POLICY INSTANCE list </button>
+                <button id="fetchData4">Get JSON body of POLICY INSTANCE id from "POLICY INSTANCE id:" field</button>
+            </div>
+
+            <!-- GET Response Frames Row -->
+            <div class="frame-row">
+                <div id="response1" class="response-frame">Return current POLICY TYPE list.</div>
+                <div id="response2" class="response-frame">Return JSON body of chosen POLICY TYPE id.<br> "POLICY TYPE id:" must be fulfilled.</div>
+                <div id="response3" class="response-frame">Return current POLICY INSTANCE list.<br> "POLICY TYPE id:" must be fulfilled.</div>
+                <div id="response4" class="response-frame">Return JSON body of chosen POLICY INSTANCE id. <br> "POLICY TYPE id:" and "POLICY INSTANCE id:" must be fulfilled. </div>
+            </div>
+            <div class="put-row">
+                <textarea id="putJson1" placeholder="Enter JSON payload for new POLICY TYPE creation:"></textarea>
+                <textarea id="putJson2" placeholder="Enter JSON payload for new POLICY INSTANCE creation:"></textarea>
+            </div>
+
+            <!-- PUT Rows -->
+            <div class="button-row">
+                <button id="sendPut1">Create POLICY TYPE id (with id from field "Policy TYPE id:" and JSON body inputed above)</button>
+                <button id="sendPut2">Create POLICY INSTANCE id (with id from field "Policy INSTANCE id:" and JSON body inputed above) </button>
+            </div>
+            <div class="frame-row">
+                <div id="putResponse1" class="response-frame">
+                    Example POLICY TYPE JSON body: <br>
+                    {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;"name": "tsapolicy",<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;"description": "tsa parameters",<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;"policy_type_id": 40008,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;"create_schema": {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"$schema": "http://json-schema.org/draft-07/schema#",<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type": "object",<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"properties": {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"threshold": {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type": "integer",<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default": 0<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"additionalProperties": false<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                    }<br>
+                </div>
+                <div id="putResponse2" class="response-frame">Example POLICY INSTANCE JSON body:<br>
+                {"threshold": 10}<br>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="tab-container">
         <div id="chart-tab" class="tab-button active">Observe simulation grid</div>
         <div id="data-tab" class="tab-button">Observe KPIs</div>
@@ -361,8 +505,6 @@
             </div>
         </div>
     </div>
-
-
 </div>
 
 <script>
@@ -563,7 +705,6 @@
                 document.getElementById('ueSourceData').innerHTML = formatAndDisplayCellData(data.ues);
                 document.getElementById('cellSourceData').innerHTML = formatAndDisplayCellData(data.cells);
 
-
                 const legendContainer = document.getElementById('chart-legend');
                 legendContainer.innerHTML = '';
 
@@ -596,11 +737,9 @@
             });
     }
 
-
     document.getElementById('form-toggle-button').addEventListener('click', () => {
         const formContainer = document.getElementById('form-container');
         const button = document.getElementById('form-toggle-button');
-
         if (formContainer.style.display === 'none' || formContainer.style.display === '') {
             formContainer.style.display = 'block';
             button.textContent = 'Hide simulation setup';
@@ -610,6 +749,171 @@
         }
     });
 
+    const toggleButton = document.getElementById('toggleButton');
+    const frameContainer = document.getElementById('frameContainer');
+
+    // Toggle visibility of the container
+    toggleButton.addEventListener('click', () => {
+        frameContainer.classList.toggle('hidden');
+    });
+
+    // Fetch GET request
+    const fetchData = (endpoint, responseId) => {
+        fetch(endpoint)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById(responseId).innerText = `Error: ${error.message}`;
+            });
+    };
+
+    const host_ns3 = "{{ host_ns3 }}";
+    // Assign GET buttons
+    document.getElementById('fetchData1').addEventListener('click', () => {
+    const url = `http://${host_ns3}:9000/a1-p/policytypes`;
+    fetchData(url, 'response1');
+
+});
+
+    document.getElementById('fetchData2').addEventListener('click', () => {
+        const param1 = document.getElementById('param1').value;
+        if (param1 == '' || isNaN(param1)) {
+            document.getElementById('response2').innerText = "'POLICY TYPE id:' must be fulfilled.";
+        } else {
+            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}`;
+            fetchData(url, 'response2');
+        }
+    });
+
+    document.getElementById('fetchData3').addEventListener('click', () => {
+        const param1 = document.getElementById('param1').value;
+        if (param1 === '' || isNaN(param1)) {
+            document.getElementById('response3').innerText = "'POLICY TYPE id:' must be fulfilled.";
+        } else {
+            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies`;
+            fetchData(url, 'response3');
+        }
+    });
+
+    document.getElementById('fetchData4').addEventListener('click', () => {
+        const param1 = document.getElementById('param1').value;
+        const param2 = document.getElementById('param2').value;
+        if (param1 === '' || isNaN(param1)) {
+            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
+        } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
+            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
+        } else {
+            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}/status`;
+            fetchData(url, 'response4');
+        }
+    });
+
+    // Send PUT request
+    const sendPutRequest = (params, jsonId, responseId, endpoint) => {
+        const jsonPayload = document.getElementById(jsonId).value;
+        const param1 = document.getElementById('param1').value;
+        if (param1 === '' || isNaN(param1)) {
+            document.getElementById(responseId).innerText = "'POLICY TYPE id:' must be fulfilled.";
+            return;
+        }
+        if (jsonPayload === '') {
+            document.getElementById(responseId).innerText = "A valid JSON should be provided";
+            return;
+        }
+        const queryString = params
+            .map(({ id, name }) => `${encodeURIComponent(document.getElementById(id).value)}`)
+            .join('&');
+
+        try {
+            const payload = JSON.parse(jsonPayload); // Validate JSON
+            fetch(`${endpoint}${queryString}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById(responseId).innerText = `Error: ${error.message}`;
+            });
+        } catch (err) {
+            document.getElementById(responseId).innerText = `Invalid JSON: ${err.message}`;
+        }
+    };
+
+  // Assign PUT buttons
+document.getElementById('sendPut1').addEventListener('click', () => {
+    const url = `http://${host_ns3}:9000/a1-p/policytypes/`;
+    sendPutRequest(
+        [{ id: 'param1', name: 'parameter' }], 
+        'putJson1', 
+        'putResponse1', 
+        url
+    );
+});
+
+    const sendPutRequest2 = (param1, param2, jsonPayload, responseId) => {
+        const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}`;
+        try {
+            const bodyPayload = JSON.stringify(jsonPayload);
+            fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: bodyPayload
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Display the response in the specified element
+                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                // Display error messages
+                document.getElementById(responseId).innerText = `Error: ${error.message}`;
+            });
+        } catch (err) {
+            // Display error for invalid JSON
+            document.getElementById(responseId).innerText = `Invalid JSON payload: ${err.message}`;
+        }
+    };
+
+    document.getElementById('sendPut2').addEventListener('click', () => {
+        const param1 = document.getElementById('param1').value;
+        const param2 = document.getElementById('param2').value;
+        const jsonText = document.getElementById('putJson2').value;
+        if (param1 === '' || isNaN(param1)) {
+            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
+            return;
+        } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
+            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
+            return;
+        } else if (jsonText === '') {
+            document.getElementById('putResponse2').innerText = "A valid JSON should be provided";
+            return;
+        }
+        const jsonPayload = JSON.parse(jsonText || '{}');
+        sendPutRequest2(param1, param2, jsonPayload, 'putResponse2');
+    });
 
     document.getElementById('chart-tab').addEventListener('click', () => {
         document.getElementById('chart-content').classList.add('active');
@@ -652,7 +956,6 @@
         statusLabel.textContent = 'Simulation starting';
         startButton.disabled = true
         stopButton.disabled = false
-
 
         fetch(endpoint, {
             method: 'POST',
@@ -738,7 +1041,6 @@ statusLabel.textContent = 'Simulation running (if there are no Cells/UEs on the 
                 statusLabel.textContent = 'Error encountered while resetting the simulation';
             });
     }
-
 </script>
 </body>
 </html>

@@ -20,6 +20,7 @@ def get_simulation() -> Simulation:
 
 @influx_data_router.get("/")
 async def root(request: Request, simulation: Simulation = Depends(get_simulation)):
+    host_ns3 = os.getenv('NS3_HOST')
     return templates.TemplateResponse(
         "chart.html",
         {
@@ -27,6 +28,7 @@ async def root(request: Request, simulation: Simulation = Depends(get_simulation
             "ues": simulation.ues,
             "cells": simulation.cells,
             "chart_dimensions": (simulation.max_x, simulation.max_y),
+            "host_ns3": host_ns3,
         },
     )
 
