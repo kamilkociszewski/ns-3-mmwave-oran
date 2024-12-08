@@ -1329,6 +1329,11 @@ EpcX2::DoSendMcHandoverRequest (EpcX2SapProvider::SecondaryHandoverParams params
 
   NS_LOG_LOGIC ("oldCellId = " << params.oldCellId);
   NS_LOG_LOGIC ("imsi = " << params.imsi);
+  for (const auto& entry : m_x2InterfaceSockets)
+{
+    NS_LOG_UNCOND ("Registered Cell ID: " << entry.first);
+}
+
 
   NS_ASSERT_MSG (m_x2InterfaceSockets.find (params.oldCellId) != m_x2InterfaceSockets.end (),
                  "Missing infos for oldCellId = " << params.oldCellId);

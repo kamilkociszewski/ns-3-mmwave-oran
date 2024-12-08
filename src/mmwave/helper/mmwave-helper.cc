@@ -788,7 +788,8 @@ MmWaveHelper::InstallSingleMcUeDevice (Ptr<Node> n)
 
   NS_ABORT_MSG_IF (m_imsiCounter >= 0xFFFFFFFF, "max num UEs exceeded");
   uint64_t imsi = ++m_imsiCounter;
-
+  NS_LOG_INFO("imsi = " << imsi);
+  
   Ptr<McUeNetDevice> device = m_mcUeNetDeviceFactory.Create<McUeNetDevice> ();
   device->SetNode (n);
 

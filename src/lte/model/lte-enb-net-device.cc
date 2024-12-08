@@ -172,8 +172,8 @@ namespace ns3 {
         NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
         NS_LOG_INFO("Request type " << controlMessage->m_requestType);
         switch (controlMessage->m_requestType) {
-            case RicControlMessage::ControlMessageRequestIdType::TS : {
-                NS_LOG_INFO("TS, do the handover");
+            case RicControlMessage::ControlMessageRequestIdType::HO : {
+                NS_LOG_INFO("HO, do the handover");
                 // do handover
                 Ptr <OctetString> imsiString =
                         Create<OctetString>((void *) controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID,

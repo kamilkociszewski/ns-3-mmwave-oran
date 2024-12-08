@@ -138,13 +138,13 @@ McStatsCalculator::SwitchToLte (uint64_t imsi, uint16_t cellId, uint16_t rnti)
       m_lteOutFile.open (GetLteOutputFilename ().c_str ());
     }
 
-  m_lteOutFile << "SwitchToLte " << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " " << imsi << " " << cellId << " " << rnti << " " << std::endl;
+  m_lteOutFile << "SwitchToLte " << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " " <<" imsi = " << imsi << " cellId = " << cellId << " rnti =" << rnti << " " << std::endl;
 
   if (!m_cellInTimeOutFile.is_open ())
     {
       m_cellInTimeOutFile.open (GetCellIdInTimeOutputFilename ().c_str ());
     }
-  m_cellInTimeOutFile << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " " << imsi << " " << cellId << " " << rnti << " " << std::endl;
+  m_cellInTimeOutFile << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " imsi = " << imsi << " cellId = " << cellId << " rnti =" << rnti << " " << std::endl;
 }
 
 void
@@ -157,7 +157,7 @@ McStatsCalculator::SwitchToMmWave (uint64_t imsi, uint16_t cellId, uint16_t rnti
       m_mmWaveOutFile.open (GetMmWaveOutputFilename ().c_str ());
     }
 
-  m_mmWaveOutFile << "SwitchToMmWave " << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " " << imsi << " " << cellId << " " << rnti << " " << std::endl;
+  m_mmWaveOutFile << "SwitchToMmWave " << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " " << "imsi = " << imsi << " cellId = " << cellId << " rnti = " << rnti << " " << std::endl;
 
   if (!m_cellInTimeOutFile.is_open ())
     {

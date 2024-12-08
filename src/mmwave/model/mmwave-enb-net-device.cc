@@ -63,8 +63,11 @@
 #include <ns3/lte-rlc-um.h>
 #include <ns3/lte-rlc-um-lowlat.h>
 #include <ns3/lte-rlc-am.h>
-
+#include "UEID-GNB.h"
+#include "E2SM-RC-ControlMessage-Format1-Item.h"
+#include "RANParameter-ValueType-Choice-ElementFalse.h"
 #include <ns3/mmwave-indication-message-helper.h>
+#include <string.h>
 
 #include "encode_e2apv1.hpp"
 namespace ns3 {
@@ -611,39 +614,43 @@ MmWaveEnbNetDevice::GetE2Termination() const
 void
   MmWaveEnbNetDevice::ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu) {
     NS_LOG_DEBUG("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
-
+     uint16_t targetCellId = 2;
     // Create RIC Control ACK
     Ptr <RicControlMessage> controlMessage = Create<RicControlMessage>(sub_req_pdu);
-    NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
-    NS_LOG_INFO("Request type " << controlMessage->m_requestType);
-    switch (controlMessage->m_requestType) {
-        case RicControlMessage::ControlMessageRequestIdType::TS : {
-            NS_LOG_INFO("TS, do the handover");
-            // do handover
-            /*Ptr <OctetString> imsiString =
-                    Create<OctetString>((void *) controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID,
-                                        controlMessage->m_e2SmRcControlHeaderFormat1->ueID.present);  //this line need to fix 
-            char *end;
+ //BIT_STRING_t *bit_string = &controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID->ran_UEID
 
-            uint64_t imsi = std::strtoull(imsiString->DecodeContent().c_str(), &end, 10);
-            uint16_t targetCellId = std::stoi(controlMessage->GetSecondaryCellIdHO());
-            NS_LOG_INFO("Imsi Decoded: " << imsi);
+    NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
+    NS_LOG_INFO("Request ID " << controlMessage->m_ricRequestId.ricRequestorID);
+    NS_LOG_INFO("Request type " << controlMessage->m_e2SmRcControlHeaderFormat1->ric_Style_Type);
+   
+    switch (controlMessage->m_e2SmRcControlHeaderFormat1->ric_Style_Type) {
+        case RicControlMessage::ControlMessageRequestIdType::HO : {
+            NS_LOG_INFO("Connected mobility, do the handover");
+            // do handover
+            UEID_GNB_t *UEgnb = (UEID_GNB_t *) calloc (1, sizeof (UEID_GNB_t));
+                                                                
+            UEgnb = controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID;
+            uint64_t imsi = {0};
+            memcpy(&imsi, UEgnb->ran_UEID->buf, UEgnb->ran_UEID->size);          
+           // uint16_t targetCellId = std::stoi(controlMessage->GetSecondaryCellIdHO());
+            NS_LOG_INFO("Imsi Decoded: " << imsi);        
             NS_LOG_INFO("Target Cell id " << targetCellId);
             m_rrc->TakeUeHoControl(imsi);
-            if (!m_forceE2FileLogging) {
+            if (!m_forceE2FileLogging) {             
                 Simulator::ScheduleWithContext(1, Seconds(0), &LteEnbRrc::PerformHandoverToTargetCell,
                                                 m_rrc, imsi, targetCellId);
             } else {
                 Simulator::Schedule(Seconds(0), &LteEnbRrc::PerformHandoverToTargetCell,
-                                    m_rrc, imsi, targetCellId);*/
+                                    m_rrc, imsi, targetCellId);
             }
             break;
+        }
             default: {
             NS_LOG_INFO("Unrecognized id type of Ric Control Message");
             break;
-        }
-        }
-    }
+            }
+        }    
+  }
 
 void
 MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
