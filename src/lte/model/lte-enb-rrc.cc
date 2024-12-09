@@ -3265,10 +3265,10 @@ LteEnbRrc::GetUeManager (uint16_t rnti)
 {
   NS_LOG_FUNCTION (this << (uint32_t) rnti);
   NS_ASSERT (0 != rnti);
-  for (const auto& entry : m_ueMap)
- {
-    NS_LOG_UNCOND("Registered RNTI: " << entry.first);
- }
+//   for (const auto& entry : m_ueMap)
+//  {
+//     NS_LOG_UNCOND("Registered RNTI: " << entry.first);
+//  }
   std::map<uint16_t, Ptr<UeManager>>::iterator it = m_ueMap.find (rnti);
   NS_ASSERT_MSG (it != m_ueMap.end (), "UE manager for RNTI " << rnti << " not found");
   return it->second;
@@ -4033,7 +4033,7 @@ LteEnbRrc::PerformHandover(uint64_t imsi)
       if (m_lastMmWaveCell[imsi] != handoverInfo.targetCellId)
         {
           // The new secondary cell HO procedure does not require to switch to LTE
-          NS_LOG_INFO ("PerformHandover ----- handover from "
+         NS_LOG_INFO ("PerformHandover ----- handover from "
                        << m_lastMmWaveCell[imsi] << " to " << handoverInfo.targetCellId
                        << " at time " << Simulator::Now ().GetSeconds ());
 
@@ -4104,15 +4104,18 @@ LteEnbRrc::PerformHandoverToTargetCell (uint64_t imsi, uint16_t targetCellId)
   {  
     if(!onHandoverImsi)
     { 
-      // The new secondary cell HO procedure does not require to switch to LTE
-      NS_LOG_INFO("PerformHandover ----- handover from " << m_lastMmWaveCell[imsi] << 
-                  " to " << targetCellId << " at time " << Simulator::Now().GetSeconds());
-
+     
       // trigger ho via X2
       EpcX2SapProvider::SecondaryHandoverParams params;
       params.imsi = imsi;
       params.targetCellId = targetCellId;
-      params.oldCellId = 4 ; // m_lastMmWaveCell[imsi]; 
+      params.oldCellId = 2 ; // m_lastMmWaveCell[imsi]; 
+       // The new secondary cell HO procedure does not require to switch to LTE
+      // NS_LOG_UNCOND("PerformHandover ----- handover from " << m_lastMmWaveCell[imsi] << 
+      //             " to " << targetCellId << " at time " << Simulator::Now().GetSeconds());
+      
+      NS_LOG_UNCOND (Simulator::Now ().GetNanoSeconds ()/ 1.0e9<<"s LteEnbRrc::PerformHandoverToTargetCell(): [UNCOND] Initiate handover for Rnti "<< imsi << " from CellId " <<  params.oldCellId<< 
+                  " to  CellId " << targetCellId);
       m_x2SapProvider->SendMcHandoverRequest(params);
 
       m_mmWaveCellSetupCompleted[imsi] = false;
@@ -4125,7 +4128,7 @@ LteEnbRrc::PerformHandoverToTargetCell (uint64_t imsi, uint16_t targetCellId)
   }
   else
   {
-    NS_LOG_UNCOND("## Warn: handover not triggered because the UE is not associated yet!");
+    //NS_LOG_UNCOND("## Warn: handover not triggered because the UE is not associated yet!");
   }
 }
 
@@ -4700,12 +4703,13 @@ LteEnbRrc::SendHandoverRequest (uint16_t rnti, uint16_t cellId)
   NS_LOG_FUNCTION (this << rnti << cellId);
   NS_LOG_LOGIC ("Request to send HANDOVER REQUEST");
   NS_ASSERT (m_configured);
+  static uint16_t defaultRnti = 1;
 
   NS_LOG_INFO("LteEnbRrc on cell " << m_cellId << " for rnti " << rnti << " SendHandoverRequest at time " << Simulator::Now().GetSeconds() << " to cellId " << cellId);
-  rnti =1;   // TODO 
-  Ptr<UeManager> ueManager = GetUeManager (rnti);
+  uint16_t usedRnti = (rnti != 0) ? rnti : defaultRnti;  
+  Ptr<UeManager> ueManager = GetUeManager (usedRnti);
   ueManager->PrepareHandover (cellId);
-
+  defaultRnti++;
 }
 
 void

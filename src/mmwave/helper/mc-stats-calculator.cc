@@ -28,7 +28,6 @@
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("McStatsCalculator");
-
 namespace mmwave {
 
 NS_OBJECT_ENSURE_REGISTERED ( McStatsCalculator);
@@ -158,6 +157,8 @@ McStatsCalculator::SwitchToMmWave (uint64_t imsi, uint16_t cellId, uint16_t rnti
     }
 
   m_mmWaveOutFile << "SwitchToMmWave " << Simulator::Now ().GetNanoSeconds () / 1.0e9 << " " << "imsi = " << imsi << " cellId = " << cellId << " rnti = " << rnti << " " << std::endl;
+
+  NS_LOG_INFO ("imsi " << imsi << " cellId  "<< cellId << " rnti  " << rnti );
 
   if (!m_cellInTimeOutFile.is_open ())
     {
