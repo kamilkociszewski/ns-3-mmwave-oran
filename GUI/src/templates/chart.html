@@ -88,6 +88,7 @@
             margin: 0 5px;
         }
 
+
         .tab-button.active {
             background: #ff8c00;
             color: #1a1a1a;
@@ -259,40 +260,58 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .container {
             display: flex;
             flex-direction: column;
             gap: 20px;
             margin-top: 10px;
         }
-        .label-row {
+
+        .row-container {
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
+            flex-direction: row; /* Aligns the items (label and input) horizontally in the same row */
+            justify-content: center; /* Centers the content (label and input pair) */
+            align-items: center; /* Ensures the label and input align vertically in the center */
+            gap: 10px; /* Optional: Adjust the gap between label and input */
             width: 100%;
         }
+
+        .label-row,
         .input-row {
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            width: 100%;
+            justify-content: center; /* Centers the label or input horizontally */
+            align-items: center; /* Ensures content aligns vertically in the center */
         }
+
+        .label-row label {
+            font-family: "Arial", sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px; /* Optional: Adds some space between the label and input */
+        }
+
+
         .label-row label,
         .input-row input {
             flex: 1;
             text-align: left;
         }
+
         .input-row input {
             padding: 10px;
             font-size: 14px;
             color: #ff8c00;
             background: #333;
-            border: none
+            border: none;
+            font-family: "Arial", sans-serif; /* Change the font here */
         }
+
         .button-row {
             display: flex;
             gap: 20px;
         }
+
         .button-row button {
             flex: 1;
             padding: 10px 15px;
@@ -301,26 +320,67 @@
             color: #1a1a1a;
             border: none
         }
+
+        .button-row-post {
+            display: flex;
+            gap: 20px;
+        }
+
+        .button-row-post button {
+            flex: 1;
+            padding: 10px 15px;
+            cursor: pointer;
+            background: orange;
+            color: black;
+            border: none;
+            font-family: "Arial", sans-serif; /* Change the font here */
+            font-weight: bold;
+        }
+
+        .button-row-get {
+            display: flex;
+            gap: 20px;
+        }
+
+        .button-row-get button {
+            flex: 1;
+            padding: 10px 15px;
+            cursor: pointer;
+            background: dodgerblue;
+            color: black;
+            border: none;
+            font-family: "Arial", sans-serif; /* Change the font here */
+            font-size: 14px; /* Optional: Adjust font size */
+            font-weight: bold;
+        }
+
         .frame-row {
             display: flex;
             gap: 20px;
         }
+
         .response-frame {
             flex: 1;
             padding: 10px;
             background-color: #333;
             min-height: 100px;
-            text-align: center;
+            text-align: left;
             word-wrap: break-word;
-            border: none
+            border: none;
+            font-family: "Arial", sans-serif; /* Change the font here */
+            font-size: 14px; /* Optional: Adjust font size */
+            color: white;
         }
+
         .put-row {
             display: flex;
             gap: 20px;
         }
+
         .put-row label {
             font-weight: bold;
         }
+
         .put-row input,
         .put-row textarea {
             width: 100%;
@@ -329,12 +389,15 @@
             box-sizing: border-box;
             color: #ff8c00;
             background: #333;
-            border: none
+            border: none;
+            font-family: "Arial", sans-serif; /* Change the font here */
         }
+
         .put-row button {
             padding: 10px 15px;
             cursor: pointer;
         }
+
         .hidden {
             display: none;
         }
@@ -427,61 +490,97 @@
     <div id="frameContainer" class="hidden">
         <div class="container">
             <!-- GET Inputs and Buttons Row -->
-            <div class="label-row">
-                <label for="param1">POLICY TYPE id:</label>
-                <label for="param2">POLICY INSTANCE id:</label>
+            <div class="row-container">
+                <div class="label-row">
+                    <label for="param1">policy_type_id:</label>
+                </div>
+                <div class="input-row">
+                    <input id="param1" placeholder="Enter policy_type_id to fetch or create:"/>
+                </div>
+                <div class="label-row">
+                    <label for="param2">policy_instance_id:</label>
+                </div>
+                <div class="input-row">
+                    <input id="param2" placeholder="Enter policy_instance_id to fetch or create:"/>
+                </div>
             </div>
-            <div class="input-row">
-                <input id="param1" placeholder="Enter POLICY TYPE id to fetch or create:" />
-                <input id="param2" placeholder="Enter POLICY INSTANCE id to fetch or create:" />
-            </div>
-            <div class="button-row">
-                <button id="fetchData1">Get POLICY TYPE list</button>
-                <button id="fetchData2">Get JSON body of POLICY TYPE id from "POLICY TYPE id:" field </button>
-                <button id="fetchData3">Get POLICY INSTANCE list </button>
-                <button id="fetchData4">Get JSON body of POLICY INSTANCE id from "POLICY INSTANCE id:" field</button>
+            <div class="button-row-get">
+                <button id="fetchData1" class="blue-button">GET policy_type_id list</button>
+                <button id="fetchData2" class="blue-button">GET JSON body of policy_type_id from "policy_type_id:"
+                    field
+                </button>
+                <button id="fetchData3" class="blue-button">GET policy_instance_id list</button>
+                <button id="fetchData4" class="blue-button">GET JSON body of policy_instance_id from "policy_instance_id
+                    id:" field
+                </button>
             </div>
 
             <!-- GET Response Frames Row -->
             <div class="frame-row">
-                <div id="response1" class="response-frame">Return current POLICY TYPE list.</div>
-                <div id="response2" class="response-frame">Return JSON body of chosen POLICY TYPE id.<br> "POLICY TYPE id:" must be fulfilled.</div>
-                <div id="response3" class="response-frame">Return current POLICY INSTANCE list.<br> "POLICY TYPE id:" must be fulfilled.</div>
-                <div id="response4" class="response-frame">Return JSON body of chosen POLICY INSTANCE id. <br> "POLICY TYPE id:" and "POLICY INSTANCE id:" must be fulfilled. </div>
+                <div id="response1" class="response-frame">Return current policy_type_id list.</div>
+                <div id="response2" class="response-frame">Return JSON body of chosen policy_type_id.<br>
+                    "policy_type_id:" must be fulfilled.
+                </div>
+                <div id="response3" class="response-frame">Return current policy_instance_id list.<br> "policy_type_id:"
+                    must be fulfilled.
+                </div>
+                <div id="response4" class="response-frame">Return JSON body of chosen policy_instance_id. <br>
+                    "policy_type_id:" and "policy_instance_id:" must be fulfilled.
+                </div>
             </div>
             <div class="put-row">
-                <textarea id="putJson1" placeholder="Enter JSON payload for new POLICY TYPE creation:"></textarea>
-                <textarea id="putJson2" placeholder="Enter JSON payload for new POLICY INSTANCE creation:"></textarea>
+                <textarea id="putJson1" placeholder="Enter JSON payload for new policy_type_id creation:"></textarea>
+                <textarea id="putJson2"
+                          placeholder="Enter JSON payload for new policy_instance_id creation:"></textarea>
             </div>
 
             <!-- PUT Rows -->
-            <div class="button-row">
-                <button id="sendPut1">Create POLICY TYPE id (with id from field "Policy TYPE id:" and JSON body inputed above)</button>
-                <button id="sendPut2">Create POLICY INSTANCE id (with id from field "Policy INSTANCE id:" and JSON body inputed above) </button>
+            <div class="button-row-post">
+                <button id="sendPut1">PUT policy_type_id (with id from field "policy_type_id:" and JSON body inputed
+                    above)
+                </button>
+                <button id="sendPut2">PUT policy_instance_id (with id from field "policy_instance_id:" and JSON body
+                    inputed above)
+                </button>
             </div>
             <div class="frame-row">
                 <div id="putResponse1" class="response-frame">
-                    Example POLICY TYPE JSON body: <br>
-                    {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;"name": "tsapolicy",<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;"description": "tsa parameters",<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;"policy_type_id": 40008,<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;"create_schema": {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"$schema": "http://json-schema.org/draft-07/schema#",<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type": "object",<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"properties": {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"threshold": {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type": "integer",<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default": 0<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"additionalProperties": false<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                    }<br>
+                    <span style="color: orange;">Example policy_type_id JSON payload: </span><br>
+                    <pre>
+{
+    "name": "es_policy",
+    "description": "Simplified - O-RAN standard Energy saving policy",
+    "policy_type_id": 10000,
+    "create_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "cellID": {
+                "type": "integer",
+                "default": 0
+            },
+            "ES_State": {
+                "type": "bool",
+                "default": false
+            }
+        },
+        "additionalProperties": false
+    }
+}
+    </pre>
                 </div>
-                <div id="putResponse2" class="response-frame">Example POLICY INSTANCE JSON body:<br>
-                {"threshold": 10}<br>
+                <div id="putResponse2" class="response-frame">
+                    <span style="color: orange;">Example policy_instance_id JSON payload:</span> <br>
+                    <pre>
+{
+    "data": {
+        "cellID": 10,
+        "ES_State": true
+    }
+}
+    </pre>
                 </div>
+
             </div>
         </div>
     </div>
@@ -650,52 +749,51 @@
 
     function updateChart() {
         fetch('/refresh-data')
-                .then(response => response.json())
-                .then(data => {
-                    const cellColorMap = new Map(data.cells.map((cell, index) => [
-                        cell.cell_id, cellColors[index % cellColors.length]
-                    ]));
+            .then(response => response.json())
+            .then(data => {
+                const cellColorMap = new Map(data.cells.map((cell, index) => [
+                    cell.cell_id, cellColors[index % cellColors.length]
+                ]));
 
-                    const cellData = data.cells.map(cell => ({
-                        x: cell.x_position,
-                        y: cell.y_position,
-                        cell_id: cell.cell_id,
-                        type: cell.type,
-                        backgroundColor: cellColorMap.get(cell.cell_id),
-                        pointStyle: cell.type === 'lte' ? 'rect' : 'triangle'
-                    }));
+                const cellData = data.cells.map(cell => ({
+                    x: cell.x_position,
+                    y: cell.y_position,
+                    cell_id: cell.cell_id,
+                    type: cell.type,
+                    backgroundColor: cellColorMap.get(cell.cell_id),
+                    pointStyle: cell.type === 'lte' ? 'rect' : 'triangle'
+                }));
 
-                    const ueData = data.ues.map(ue => ({
-                        x: ue.x_position,
-                        y: ue.y_position,
-                        ue_id: ue.ue_id,
-                        type: ue.type,
-                        MMWave_Cell: ue.MMWave_Cell,
-                        LTE_Cell: ue.LTE_Cell,
-                        backgroundColor: cellColorMap.get(ue.MMWave_Cell)
-                    }));
+                const ueData = data.ues.map(ue => ({
+                    x: ue.x_position,
+                    y: ue.y_position,
+                    ue_id: ue.ue_id,
+                    type: ue.type,
+                    MMWave_Cell: ue.MMWave_Cell,
+                    LTE_Cell: ue.LTE_Cell,
+                    backgroundColor: cellColorMap.get(ue.MMWave_Cell)
+                }));
 
-                    myChart.data.datasets[0].data = ueData;
-                    myChart.data.datasets[0].backgroundColor = ueData.map(ue => ue.backgroundColor);
-                    myChart.data.datasets[1].data = cellData;
-                    myChart.data.datasets[1].backgroundColor = cellData.map(cell => cell.backgroundColor);
-                    myChart.data.datasets[1].pointStyle = cellData.map(cell => cell.pointStyle);
+                myChart.data.datasets[0].data = ueData;
+                myChart.data.datasets[0].backgroundColor = ueData.map(ue => ue.backgroundColor);
+                myChart.data.datasets[1].data = cellData;
+                myChart.data.datasets[1].backgroundColor = cellData.map(cell => cell.backgroundColor);
+                myChart.data.datasets[1].pointStyle = cellData.map(cell => cell.pointStyle);
 
-                    var chartDimensions = data.max_x_max_y;
-                    myChart.options.scales.x.min = 0;
-                    myChart.options.scales.x.max = chartDimensions[0];
-                    myChart.options.scales.y.min = 0;
-                    myChart.options.scales.y.max = chartDimensions[1];
+                var chartDimensions = data.max_x_max_y;
+                myChart.options.scales.x.min = 0;
+                myChart.options.scales.x.max = chartDimensions[0];
+                myChart.options.scales.y.min = 0;
+                myChart.options.scales.y.max = chartDimensions[1];
 
-                    myChart.update();
+                myChart.update();
 
-                    function formatAndDisplayCellData(data) {
-                        return data.map(cell => {
-                            return `<div class="object-box">${Object.entries(cell)
-                                    .map(([key, value]) => `${key}: <span class="value">${value === null || value === "" ? "N/A" : value}</span>`
-                        )
-                        .
-                            join("<br>")
+                function formatAndDisplayCellData(data) {
+                    return data.map(cell => {
+                        return `<div class="object-box">${Object.entries(cell)
+                            .map(([key, value]) => `${key}: <span class="value">${value === null || value === "" ? "N/A" : value}</span>`
+                            )
+                            .join("<br>")
                         }
                     </div>
                         `;
@@ -767,25 +865,38 @@
                 return response.json();
             })
             .then(data => {
-                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+                // Get the response container
+                const responseElement = document.getElementById(responseId);
+
+                // Create a <pre> tag to preserve formatting and set the JSON data inside it
+                const preElement = document.createElement('pre');
+                preElement.style.color = "white";  // Optional: Set text color to white for JSON content
+                preElement.textContent = JSON.stringify(data, null, 2);  // Format JSON with indentation
+
+                // Clear any previous content and append the <pre> element with formatted JSON
+                responseElement.innerHTML = ''; // Clear the content of the response div
+                responseElement.appendChild(preElement);  // Append the <pre> element to display the JSON response
             })
             .catch(error => {
-                document.getElementById(responseId).innerText = `Error: ${error.message}`;
+                // Handle errors and display error message inside the response div
+                const responseElement = document.getElementById(responseId);
+                responseElement.innerText = `Error: ${error.message}`;
             });
     };
+
 
     const host_ns3 = "{{ host_ns3 }}";
     // Assign GET buttons
     document.getElementById('fetchData1').addEventListener('click', () => {
-    const url = `http://${host_ns3}:9000/a1-p/policytypes`;
-    fetchData(url, 'response1');
+        const url = `http://${host_ns3}:9000/a1-p/policytypes`;
+        fetchData(url, 'response1');
 
-});
+    });
 
     document.getElementById('fetchData2').addEventListener('click', () => {
         const param1 = document.getElementById('param1').value;
         if (param1 == '' || isNaN(param1)) {
-            document.getElementById('response2').innerText = "'POLICY TYPE id:' must be fulfilled.";
+            document.getElementById('response2').innerText = "'policy_type_id:' must be fulfilled.";
         } else {
             const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}`;
             fetchData(url, 'response2');
@@ -795,7 +906,7 @@
     document.getElementById('fetchData3').addEventListener('click', () => {
         const param1 = document.getElementById('param1').value;
         if (param1 === '' || isNaN(param1)) {
-            document.getElementById('response3').innerText = "'POLICY TYPE id:' must be fulfilled.";
+            document.getElementById('response3').innerText = "'policy_type_id:' must be fulfilled.";
         } else {
             const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies`;
             fetchData(url, 'response3');
@@ -806,9 +917,9 @@
         const param1 = document.getElementById('param1').value;
         const param2 = document.getElementById('param2').value;
         if (param1 === '' || isNaN(param1)) {
-            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
+            document.getElementById('response4').innerText = "'policy_type_id:' and 'policy_instance_id:' must be fulfilled";
         } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
-            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
+            document.getElementById('response4').innerText = "'policy_type_id:' and 'policy_instance_id:' must be fulfilled";
         } else {
             const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}/status`;
             fetchData(url, 'response4');
@@ -820,7 +931,7 @@
         const jsonPayload = document.getElementById(jsonId).value;
         const param1 = document.getElementById('param1').value;
         if (param1 === '' || isNaN(param1)) {
-            document.getElementById(responseId).innerText = "'POLICY TYPE id:' must be fulfilled.";
+            document.getElementById(responseId).innerText = "'policy_type_id:' must be fulfilled.";
             return;
         }
         if (jsonPayload === '') {
@@ -828,43 +939,45 @@
             return;
         }
         const queryString = params
-            .map(({ id, name }) => `${encodeURIComponent(document.getElementById(id).value)}`)
+            .map(({id, name}) => `${encodeURIComponent(document.getElementById(id).value)}`)
             .join('&');
 
         try {
             const payload = JSON.parse(jsonPayload); // Validate JSON
             fetch(`${endpoint}${queryString}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload),
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
-            })
-            .catch(error => {
-                document.getElementById(responseId).innerText = `Error: ${error.message}`;
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    //document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+                    document.getElementById(responseId).innerText =
+                        "Added successfully!"; // Display success message
+                })
+                .catch(error => {
+                    document.getElementById(responseId).innerText = `Error: ${error.message}`;
+                });
         } catch (err) {
             document.getElementById(responseId).innerText = `Invalid JSON: ${err.message}`;
         }
     };
 
-  // Assign PUT buttons
-document.getElementById('sendPut1').addEventListener('click', () => {
-    const url = `http://${host_ns3}:9000/a1-p/policytypes/`;
-    sendPutRequest(
-        [{ id: 'param1', name: 'parameter' }], 
-        'putJson1', 
-        'putResponse1', 
-        url
-    );
-});
+    // Assign PUT buttons
+    document.getElementById('sendPut1').addEventListener('click', () => {
+        const url = `http://${host_ns3}:9000/a1-p/policytypes/`;
+        sendPutRequest(
+            [{id: 'param1', name: 'parameter'}],
+            'putJson1',
+            'putResponse1',
+            url
+        );
+    });
 
     const sendPutRequest2 = (param1, param2, jsonPayload, responseId) => {
         const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}`;
@@ -877,20 +990,22 @@ document.getElementById('sendPut1').addEventListener('click', () => {
                 },
                 body: bodyPayload
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Display the response in the specified element
-                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
-            })
-            .catch(error => {
-                // Display error messages
-                document.getElementById(responseId).innerText = `Error: ${error.message}`;
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display the response in the specified element
+                    //document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+                    document.getElementById(responseId).innerText =
+                        "Added successfully!"; // Display success message
+                })
+                .catch(error => {
+                    // Display error messages
+                    document.getElementById(responseId).innerText = `Error: ${error.message}`;
+                });
         } catch (err) {
             // Display error for invalid JSON
             document.getElementById(responseId).innerText = `Invalid JSON payload: ${err.message}`;
@@ -902,10 +1017,10 @@ document.getElementById('sendPut1').addEventListener('click', () => {
         const param2 = document.getElementById('param2').value;
         const jsonText = document.getElementById('putJson2').value;
         if (param1 === '' || isNaN(param1)) {
-            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
+            document.getElementById('putResponse2').innerText = "'policy_type_id:' and 'policy_instance_id:' must be fulfilled.";
             return;
         } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
-            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
+            document.getElementById('putResponse2').innerText = "'policy_type_id:' and 'policy_instance_id:' must be fulfilled.";
             return;
         } else if (jsonText === '') {
             document.getElementById('putResponse2').innerText = "A valid JSON should be provided";
@@ -972,7 +1087,7 @@ document.getElementById('sendPut1').addEventListener('click', () => {
             })
             .then(data => {
                 console.log('Success:', data);
-statusLabel.textContent = 'Simulation running (if there are no Cells/UEs on the grid after max 30s, please check if ns3 is running properly typing in terminal "ps -a" or "cat ns-3-mmwave-oran/ns3_run.log")';
+                statusLabel.textContent = 'Simulation running (if there are no Cells/UEs on the grid after max 30s, please check if ns3 is running properly typing in terminal "ps -a" or "cat ns-3-mmwave-oran/ns3_run.log")';
             })
             .catch((error) => {
                 console.error('Error:', error);
