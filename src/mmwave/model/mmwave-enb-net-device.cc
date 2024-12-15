@@ -68,7 +68,7 @@
 #include "RANParameter-ValueType-Choice-ElementFalse.h"
 #include <ns3/mmwave-indication-message-helper.h>
 #include <string.h>
-
+#include <arpa/inet.h>
 #include "encode_e2apv1.hpp"
 namespace ns3 {
 
@@ -614,10 +614,9 @@ MmWaveEnbNetDevice::GetE2Termination() const
 void
   MmWaveEnbNetDevice::ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu) {
     NS_LOG_DEBUG("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
-     uint16_t targetCellId = 5;
     // Create RIC Control ACK
     Ptr <RicControlMessage> controlMessage = Create<RicControlMessage>(sub_req_pdu);
- //BIT_STRING_t *bit_string = &controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID->ran_UEID
+    //BIT_STRING_t *bit_string = &controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID->ran_UEID
 
     NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
     NS_LOG_INFO("Request ID " << controlMessage->m_ricRequestId.ricRequestorID);
@@ -631,10 +630,43 @@ void
                                                                 
             UEgnb = controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID;
             uint64_t imsi = {0};
-            memcpy(&imsi, UEgnb->ran_UEID->buf, UEgnb->ran_UEID->size);          
-           // uint16_t targetCellId = std::stoi(controlMessage->GetSecondaryCellIdHO());
+            memcpy(&imsi, UEgnb->ran_UEID->buf, UEgnb->ran_UEID->size);
+
+             int size = controlMessage->m_e2SmRcControlMessageFormat1->ranP_List.list.size;  //(RANParameter_STRUCTURE_Item_t*)
+             printf("size = %d\n", size);          
+             
+              // 8.4.4.1  Handover Control
+              // Target Primary Cell ID, STRUCTURE (len 1)
+              // > CHOICE Target Cell, STRUCTURE (len 2)
+              // >>  NR Cell, STRUCTURE (len 1))
+              // >>> NR CGI, ELEMENT
+              // >>E-UTRA Cell, STRUCTURE (len 1)
+              // >>>E-UTRA CGI, ELEMENT
+      
+
+              // Target Primary Cell ID, STRUCTURE (len 1)
+              E2SM_RC_ControlMessage_Format1_Item_t pram1_item1_Target_Primary_Cell = *controlMessage->m_e2SmRcControlMessageFormat1->ranP_List.list.array[0];
+          
+              // > CHOICE Target Cell, STRUCTURE (len 2)
+              RANParameter_STRUCTURE_Item  pram1_item2_CHOICE_Target_Cell = *pram1_item1_Target_Primary_Cell.ranParameter_valueType.choice.ranP_Choice_Structure
+                                ->ranParameter_Structure->sequence_of_ranParameters->list.array[0];
+              // >>  NR Cell, STRUCTURE (len 1))
+              RANParameter_STRUCTURE_Item  pram1_item3_NR_Cell = *pram1_item2_CHOICE_Target_Cell.ranParameter_valueType->choice.ranP_Choice_Structure
+                                ->ranParameter_Structure->sequence_of_ranParameters->list.array[0];
+              // >>> NR CGI, ELEMENT
+              RANParameter_STRUCTURE_Item  pram1_item4_NR_CGI = *pram1_item3_NR_Cell.ranParameter_valueType->choice.ranP_Choice_Structure
+                                ->ranParameter_Structure->sequence_of_ranParameters->list.array[0];
+
+               BIT_STRING_t NR_CGI = pram1_item4_NR_CGI.ranParameter_valueType->choice.ranP_Choice_ElementFalse->ranParameter_value->choice.valueBitS;
+               
+            uint8_t nr_cgi_value;
+            memcpy(&nr_cgi_value, NR_CGI.buf,NR_CGI.size);
+           
+            uint16_t targetCellId = nr_cgi_value - 48 ;  //convert from string to decimal
+
+            //uint16_t targetCellId = std::stoi(controlMessage->GetSecondaryCellIdHO());
             NS_LOG_INFO("Imsi Decoded: " << imsi);        
-            NS_LOG_INFO("Target Cell id " << targetCellId);
+            NS_LOG_UNCOND("Target Cell id " << targetCellId);
             m_rrc->TakeUeHoControl(imsi);
             if (!m_forceE2FileLogging) {             
                 Simulator::ScheduleWithContext(1, Seconds(0), &LteEnbRrc::PerformHandoverToTargetCell,
