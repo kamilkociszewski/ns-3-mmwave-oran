@@ -27,6 +27,7 @@
 #include "ns3/mmwave-helper.h"
 #include "ns3/epc-helper.h"
 #include "ns3/mmwave-point-to-point-epc-helper.h"
+#include "../src/mmwave/model/node-container-manager.h"
 #include "ns3/lte-helper.h"
 
 using namespace ns3;
@@ -206,9 +207,9 @@ int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
-  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_LOGIC);
+  //LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_LOGIC);
   //  LogComponentEnable ("KpmIndication", LOG_LEVEL_DEBUG);
-  // LogComponentEnable ("KpmIndication", LOG_LEVEL_INFO);
+  LogComponentEnable ("McStatsCalculator", LOG_LEVEL_INFO);
 
   // LogComponentEnable ("MmWaveHelper", LOG_LEVEL_LOGIC);
 //   LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
@@ -414,6 +415,7 @@ main (int argc, char *argv[])
   ueNodes.Create (nUeNodes);
   allEnbNodes.Add (lteEnbNodes);
   allEnbNodes.Add (mmWaveEnbNodes);
+  NodeContainerManager::GetInstance().SetMmWaveEnbNodes(mmWaveEnbNodes);
 
   // Position
   Vector centerPosition = Vector (maxXAxis / 2, maxYAxis / 2, 3);

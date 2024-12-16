@@ -36,7 +36,7 @@
 *                             Return number of associated UEs, parallel reporting for E2
 */
 
-
+#include "ns3/mmwave-helper.h"
 #include <ns3/llc-snap-header.h>
 #include <ns3/simulator.h>
 #include <ns3/callback.h>
@@ -67,9 +67,12 @@
 #include "E2SM-RC-ControlMessage-Format1-Item.h"
 #include "RANParameter-ValueType-Choice-ElementFalse.h"
 #include <ns3/mmwave-indication-message-helper.h>
+#include "node-container-manager.h"
 #include <string.h>
 #include <arpa/inet.h>
 #include "encode_e2apv1.hpp"
+#include "ns3/network-module.h"
+
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("MmWaveEnbNetDevice");
@@ -610,9 +613,35 @@ MmWaveEnbNetDevice::GetE2Termination() const
   return m_e2term;
 }
 
+bool esON_list[10] = {0};
 
 void
+SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
+{  
+  printf("in function");
+  if (val == 0)
+    {
+      
+      NS_LOG_UNCOND ("Cell turned off " << cellid);
+    }
+  else
+    {
+      NS_LOG_UNCOND ("Cell turned on " << cellid);
+    }
+  esON_list[cellid] = m_esON; //ES status flag
+  phy->SetTxPower (val); //set Cell TX power
+  if (val == 0)
+    {
+      phy->SetNoiseFigure (100); //high noise
+    }
+  else
+    {
+      phy->SetNoiseFigure (5); //default
+    }
+}
+void
   MmWaveEnbNetDevice::ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu) {
+    NodeContainer &mmWaveEnbNodes = NodeContainerManager::GetInstance().GetMmWaveEnbNodes();
     NS_LOG_DEBUG("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
     // Create RIC Control ACK
     Ptr <RicControlMessage> controlMessage = Create<RicControlMessage>(sub_req_pdu);
@@ -621,7 +650,7 @@ void
     NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
     NS_LOG_INFO("Request ID " << controlMessage->m_ricRequestId.ricRequestorID);
     NS_LOG_INFO("Request type " << controlMessage->m_e2SmRcControlHeaderFormat1->ric_Style_Type);
-   
+     
     switch (controlMessage->m_e2SmRcControlHeaderFormat1->ric_Style_Type) {
         case RicControlMessage::ControlMessageRequestIdType::HO : {
             NS_LOG_INFO("Connected mobility, do the handover");
@@ -645,11 +674,28 @@ void
             }
             break;
         }
-            default: {
+         case RicControlMessage::ControlMessageRequestIdType::Es : {       
+                 for (uint32_t i = 0; i < mmWaveEnbNodes.GetN (); i++)
+                      {
+                        Ptr<MmWaveEnbPhy> enbPhy =
+                            mmWaveEnbNodes.Get (i)->GetDevice (0)->GetObject<MmWaveEnbNetDevice> ()->GetPhy ();
+                        Ptr<MmWaveEnbNetDevice> mmdev =
+                            DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbNodes.Get (i)->GetDevice (0));
+                        uint16_t cell_id = mmdev->GetCellId ();
+                    if (cell_id == 2)
+                      {
+                        printf("Cell Id %u ",cell_id);
+                         Simulator::ScheduleWithContext (1,MilliSeconds(20), &SetBSTX, enbPhy, 0, cell_id, true);
+                         //Simulator::ScheduleWithContext (1,Seconds (tim+5), &SetBSTX, enbPhy, 30, cell_id, false);
+                      }
+                      }           
+                break;
+           }
+                default: {
             NS_LOG_INFO("Unrecognized id type of Ric Control Message");
             break;
             }
-        }    
+          }   
   }
 
 void

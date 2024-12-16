@@ -194,7 +194,7 @@ namespace ns3 {
                 }
                 break;
             }
-            case RicControlMessage::ControlMessageRequestIdType::QoS : {
+            case RicControlMessage::ControlMessageRequestIdType::Es: {
                 // use SetUeQoS()
                 NS_FATAL_ERROR("For QoS use file-based control.");
                 break;
