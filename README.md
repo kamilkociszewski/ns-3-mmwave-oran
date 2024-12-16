@@ -2,6 +2,22 @@
 
 ================================
 
+Here is an example build to show how to simulate turning on/off cells during simulation.
+
+Use scenario-zero-with_parallel_loging_cellonoff_example.cc. Scenario turn off cell 2 after t=60s of simulation and turn on after t+30s. Loop will repeat that until end of simulation for t*x.
+
+Change cell state is executed with function: <br>
+```
+SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON).
+```
+
+For testing, use command below or change name of scenario to "scenario-zero-with_parallel_loging.cc" and run it from GUI with parameters in command below.
+```
+./waf --run "scratch/scenario-zero-with_parallel_loging_cellonoff_example.cc --enableE2FileLogging=1 --hoSinrDifference=5 --indicationPeriodicity=0.1 --simTime=1000 --KPM_E2functionID=2 --RC_E2functionID=3 --N_MmWaveEnbNodes=3 --N_Ues=2 --CenterFrequency=3.5e9 --Bandwidth=20e6 --IntersideDistanceUEs=600 --IntersideDistanceCells=1000 "
+```
+
+================================
+
 This repository is a fork of the [ns3-mmwave project](https://github.com/nyuwireless-unipd/ns3-mmwave) with updates to make it work with the [ns3-o-ran-e2](https://github.com/o-ran-sc/sim-ns3-o-ran-e2) ns-3 module.
 
 This module enables the support for running multiple terminations of an O-RAN-compliant E2 interface inside the simulation process. It has been developed as part of a collaborative effort between the [Institute for the Wireless Internet of Things (WIoT)](https://wiot.northeastern.edu) at Northeastern University, Mavenir, and the University of Padova.
