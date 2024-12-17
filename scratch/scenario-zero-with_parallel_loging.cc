@@ -215,7 +215,7 @@ GetBSTX(Ptr<MmWaveEnbPhy> phy, uint16_t cellid) {
     } else {
         esON_list[cellid] = false;
     }
-    NS_LOG_UNCOND ("Current TX power " << val << " for cell " << cellid);
+   // NS_LOG_UNCOND ("Current TX power " << val << " for cell " << cellid);
     NS_LOG_UNCOND ("Current ES state " << esON_list[cellid] << " for cell " << cellid);
 }
 
@@ -753,7 +753,7 @@ main(int argc, char *argv[]) {
             //Simulator::Schedule (Seconds (t * 0.1), &GetESStates, mmdev, cell_id);
             Simulator::Schedule(Seconds(t * 0.1), &GetBSTX, enbPhy, cell_id);
         }
-        if (cell_id == 2) {
+       /* if (cell_id == 2) {
             NS_LOG_UNCOND ("Found Cell " << cell_id << ", set TX power adjustment");
             //Simulator::Schedule (Seconds (1), &SetBSTX, enbPhy, 30, cell_id, false);
             for (int t = 1; t * 2 < simTime; t++) {
@@ -761,7 +761,7 @@ main(int argc, char *argv[]) {
                 Simulator::Schedule(Seconds(tim), &SetBSTX, enbPhy, 0, cell_id, true);
                 Simulator::Schedule(Seconds(tim + 1), &SetBSTX, enbPhy, 30, cell_id, false);
             }
-        }
+        }*/
     }
 
     if (enableTraces) {
