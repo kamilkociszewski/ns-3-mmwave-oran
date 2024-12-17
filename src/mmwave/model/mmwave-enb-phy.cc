@@ -198,6 +198,7 @@ MmWaveEnbPhy::DoInitialize (void)
     }
   Simulator::Schedule (MicroSeconds (0), &MmWaveEnbPhy::UpdateUeSinrEstimate, this);
   MmWavePhy::DoInitialize ();
+  m_InitTXSet = true;
 }
 void
 MmWaveEnbPhy::DoDispose (void)
@@ -518,7 +519,13 @@ void
 MmWaveEnbPhy::SetTxPower (double pow)
 {
   m_txPower = pow;
+    if (m_InitTXSet)
+    {
+        SetSubChannels (m_channelChunks);
+    }
 }
+
+
 double
 MmWaveEnbPhy::GetTxPower () const
 {

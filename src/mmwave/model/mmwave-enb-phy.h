@@ -231,6 +231,7 @@ private:
   uint16_t m_roundFromLastUeSinrUpdate;       // the ratio between the two above
   double m_transient;       // after m_transient, we can start apply the filter
   bool m_noiseAndFilter;       // If true, use noisy SINR samples, filtered. If false, just use the SINR measure
+  bool m_InitTXSet = false; // set true when initialization is done and SetTX power is available
 
   Ptr<MmWaveHarqPhy> m_harqPhyModule;
   std::vector <int> m_channelChunks;

@@ -613,22 +613,22 @@ MmWaveEnbNetDevice::GetE2Termination() const
   return m_e2term;
 }
 
-bool esON_list[10] = {0};
+bool esON_cellID= false;
 
 void
 SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
-{  
+{
   printf("in function");
   if (val == 0)
     {
-      
+
       NS_LOG_UNCOND ("Cell turned off " << cellid);
     }
   else
     {
       NS_LOG_UNCOND ("Cell turned on " << cellid);
     }
-  esON_list[cellid] = m_esON; //ES status flag
+    esON_cellID = m_esON; //ES status flag
   phy->SetTxPower (val); //set Cell TX power
   if (val == 0)
     {
@@ -650,22 +650,22 @@ void
     NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
     NS_LOG_INFO("Request ID " << controlMessage->m_ricRequestId.ricRequestorID);
     NS_LOG_INFO("Request type " << controlMessage->m_e2SmRcControlHeaderFormat1->ric_Style_Type);
-     
+
     switch (controlMessage->m_e2SmRcControlHeaderFormat1->ric_Style_Type) {
         case RicControlMessage::ControlMessageRequestIdType::HO : {
             NS_LOG_INFO("Connected mobility, do the handover");
             // do handover
             UEID_GNB_t *UEgnb = (UEID_GNB_t *) calloc (1, sizeof (UEID_GNB_t));
-                                                                
+
             UEgnb = controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID;
             uint64_t imsi = {0};
             memcpy(&imsi, UEgnb->ran_UEID->buf, UEgnb->ran_UEID->size);
             //uint16_t targetCellId = std::stoi(controlMessage->GetSecondaryCellIdHO());
             uint16_t targetCellId = controlMessage->GetTargetCell();
-            NS_LOG_INFO("Imsi Decoded: " << imsi);        
+            NS_LOG_INFO("Imsi Decoded: " << imsi);
             NS_LOG_UNCOND("Target Cell id " << targetCellId);
             m_rrc->TakeUeHoControl(imsi);
-            if (!m_forceE2FileLogging) {             
+            if (!m_forceE2FileLogging) {
                 Simulator::ScheduleWithContext(1, Seconds(0), &LteEnbRrc::PerformHandoverToTargetCell,
                                                 m_rrc, imsi, targetCellId);
             } else {
@@ -674,7 +674,7 @@ void
             }
             break;
         }
-         case RicControlMessage::ControlMessageRequestIdType::Es : {       
+         case RicControlMessage::ControlMessageRequestIdType::Es : {
                  for (uint32_t i = 0; i < mmWaveEnbNodes.GetN (); i++)
                       {
                         Ptr<MmWaveEnbPhy> enbPhy =
@@ -688,14 +688,14 @@ void
                          Simulator::ScheduleWithContext (1,MilliSeconds(20), &SetBSTX, enbPhy, 0, cell_id, true);
                          //Simulator::ScheduleWithContext (1,Seconds (tim+5), &SetBSTX, enbPhy, 30, cell_id, false);
                       }
-                      }           
+                      }
                 break;
            }
                 default: {
             NS_LOG_INFO("Unrecognized id type of Ric Control Message");
             break;
             }
-          }   
+          }
   }
 
 void
@@ -1714,6 +1714,12 @@ void
 MmWaveEnbNetDevice::SetStartTime (uint64_t st)
 {
   m_startTime = st;
+}
+
+bool
+MmWaveEnbNetDevice::GetESStates () const
+{
+    return bool esON_cellID;
 }
 
 }
