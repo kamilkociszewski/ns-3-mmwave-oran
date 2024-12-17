@@ -767,7 +767,9 @@ main (int argc, char *argv[])
         Ptr<MmWaveEnbNetDevice> mmdev =
                 DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbNodes.Get (i)->GetDevice (0));
         uint16_t cell_id = mmdev->GetCellId ();
-        Simulator::Schedule (Seconds (numPrints * 0.1), &GetESStates, mmdev, cell_id);
+        for (int t = 1; t * 1 < simTime; t++) {
+            Simulator::Schedule (Seconds (t * 0.1), &GetESStates, mmdev, cell_id);
+        }
     }
 
     if (enableTraces)
