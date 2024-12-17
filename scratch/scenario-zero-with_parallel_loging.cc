@@ -315,7 +315,7 @@ static ns3::GlobalValue
         g_handoverMode("handoverMode",
                        "HO euristic to be used,"
                        "can be only \"NoAuto\", \"FixedTtt\", \"DynamicTtt\",   \"Threshold\"",
-                       ns3::StringValue("DynamicTtt"), ns3::MakeStringChecker());
+                       ns3::StringValue("Threshold"), ns3::MakeStringChecker());
 
 static ns3::GlobalValue g_e2TermIp("e2TermIp", "The IP address of the RIC E2 termination",
                                    ns3::StringValue("127.0.0.1"), ns3::MakeStringChecker());
