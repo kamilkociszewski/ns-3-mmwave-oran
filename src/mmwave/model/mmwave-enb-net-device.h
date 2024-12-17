@@ -121,7 +121,7 @@ namespace ns3 {
 
             void ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu);
             void SetStartTime(uint64_t);
-            bool GetESStates();
+            bool GetESStates() const;
 
             void stopSendingAndCancelSchedule();
 
