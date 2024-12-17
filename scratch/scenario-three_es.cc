@@ -201,7 +201,7 @@ ClearFile (std::string Filename, uint64_t m_startTime)
     outFile1.close ();
 }
 
-/*void
+void
 SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
 {
     if (val == 0)
@@ -223,7 +223,8 @@ SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
     {
         phy->SetNoiseFigure (5); //default
     }
-}*/
+}
+
 void
 GetESStates (Ptr<MmWaveEnbNetDevice> mmdev, uint16_t cellid)
 {
@@ -769,6 +770,17 @@ main (int argc, char *argv[])
         uint16_t cell_id = mmdev->GetCellId ();
         for (int t = 1; t * 1 < simTime; t++) {
             Simulator::Schedule (Seconds (t * 0.1), &GetESStates, mmdev, cell_id);
+        }
+        if (cell_id == 2)
+        {
+            NS_LOG_UNCOND ("Found Cell " << cell_id << ", set TX power adjustment");
+            //Simulator::Schedule (Seconds (1), &SetBSTX, enbPhy, 30, cell_id, false);
+            for (int t = 1; t * 2 < simTime; t++)
+            {
+                int tim = t * 2;
+                Simulator::Schedule (Seconds (tim), &SetBSTX, enbPhy, 0, cell_id, true);
+                Simulator::Schedule (Seconds (tim + 1), &SetBSTX, enbPhy, 30, cell_id, false);
+            }
         }
     }
 
