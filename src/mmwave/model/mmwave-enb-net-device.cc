@@ -1719,7 +1719,7 @@ MmWaveEnbNetDevice::SetStartTime (uint64_t st)
 bool
 MmWaveEnbNetDevice::GetESStates () const
 {
-    return bool esON_cellID;
+    return  esON_cellID;
 }
 
 }

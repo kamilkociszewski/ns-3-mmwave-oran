@@ -227,7 +227,7 @@ SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
 void
 GetESStates (Ptr<MmWaveEnbNetDevice> mmdev, uint16_t cellid)
 {
-    bool esON_list[cellid] = mmdev->GetESStates ();
+    esON_list[cellid] = mmdev->GetESStates ();
     NS_LOG_UNCOND ("Current ES state " << esON_list[cellid] << " for cell " << cellid);
 }
 
