@@ -388,6 +388,12 @@
             display: none;
         }
 
+        .es-checkbox-cell {
+            display: flex;
+
+            align-items: center; /* Aligns items vertically */
+        }
+
         .space_in_form {
             height: 5px;
             width: 110%;
@@ -487,10 +493,6 @@
             <button type="button" onclick="sendForm('/start_simulation')" id="start_button">Start new</button>
             <button type="button" onclick="stopSim('/stop_simulation')" id="stop_button" disabled>Stop</button>
             <button type="button" onclick="resetSim('/reset_simulation')" id="reset_button" disabled>Reset</button>
-            <div><label id="warning_label"></label></div>
-            <div></div>
-            <div></div>
-            <div></div>
             <div class="space_in_form"></div>
             <div class="space_in_form"></div>
             <div class="space_in_form"></div>
@@ -500,16 +502,28 @@
             </div>
             <div>
                 <center>
-                    <label>ES status: </label>
-                    <label id="es_status_label">off</label>
-                </center>
+                    <label>Change ES mode for cell: </label></center>
             </div>
-            <button type="button" onclick="startEs()" style="background-color: green"
+            <button type="button" onclick="resetSim('/reset_simulation')" style="background-color: green"
                     id="set_es_button">Turn ES on
             </button>
-            <button type="button" onclick="stopEs()" style="background-color: olive"
+            <button type="button" onclick="resetSim('/reset_simulation')" style="background-color: olive"
                     id="set_es_button">Turn ES off
             </button>
+            <div><label id="warning_label"></label></div>
+            <div class="es-checkbox-cell" id="es-checkbox-cells">
+                {% for cell in cells %}
+                <div class="tab-button" style="background-color: lightgray">
+                    <label for="es-cell-{{ loop.index }}">Cell {{ loop.index }}</label>
+                    <input type="checkbox" id="es-cell-{{ loop.index }}" name="es-cell-{{ loop.index }}">
+                </div>
+                {% endfor %}
+            </div>
+            <div>
+                <label>Currently ES mode activated for cells: </label>
+                <label id="es_cells_label">None</label>
+            </div>
+            <div></div>
         </form>
     </div>
     <div id="frameContainer" class="hidden">
@@ -622,12 +636,6 @@
                 <div class="es_subchart_div">
                     <canvas id="prb-usage-chart"></canvas>
                 </div>
-                <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
-                    <label style="font-size: 20px; font-weight: bold; color: white;">
-                        Dots on plot represent UEs cell allocation (DOT color = CELL color), line colors represent
-                        unique UEs
-                    </label>
-                </div>
             </div>
             <div class="es_charts_right">
                 <canvas id="es_diff"></canvas>
@@ -650,6 +658,10 @@
         }
     });
 
+    const cellColors = [
+        '#1f77b4', '#9467bd', '#2ca02c', '#d62728', '#ff7f0e',
+        '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+    ];
 
     var ctx = document.getElementById('myChart').getContext('2d');
 
@@ -780,10 +792,7 @@
     const actualEsChart = new Chart(ctx2, {
         type: 'bar',
         data: {
-            labels: [
-                'Network power usage\nwith ES disabled',
-                'Current network\npower usage',
-            ],
+            labels: ['No ES', 'With ES'],
             datasets: [{
                 label: 'Difference in power consumption between modes',
                 data: [0, 0],
@@ -795,40 +804,27 @@
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function (value, index, values) {
-                            return this.getLabelForValue(value).split('\n');
-                        },
-                        maxRotation: 0,
-                        minRotation: 0,
-                        padding: 10,
-                        color: '#FFFFFF',
-                        font: {
-                            size: 10
-                        },
-                    },
+                    beginAtZero: true
                 },
                 y: {
                     beginAtZero: true
-                },
+                }
             },
             plugins: {
                 legend: {
                     display: false
                 },
                 title: {
-                    display: true,
-                    text: 'Difference in power consumption between modes',
-                    color: '#FFFFFF',
+                    display: true, // Enable the title
+                    text: 'Difference in power consumption between modes', // Set the chart title
                     font: {
-                        size: 16
+                        size: 16 // Customize font size
                     },
                     padding: {
                         top: 10,
-                        bottom: 10
+                        bottom: 10 // Add padding around the title
                     },
-                    align: 'center'
+                    align: 'center' // Center the title
                 },
                 tooltip: {
                     callbacks: {
@@ -841,7 +837,6 @@
         }
     });
 
-
     const ctx3 = document.getElementById('es-mode-chart').getContext('2d');
     const ctx4 = document.getElementById('sinr-chart').getContext('2d');
     const ctx5 = document.getElementById('retx-chart').getContext('2d');
@@ -850,8 +845,7 @@
     const es_mode_chart = new Chart(ctx3, {
         type: 'line',
         data: {
-            labels: Array.from({length: 51}, (_, i) => -50 + i),
-
+            labels: Array.from({length: 50}, (_, i) => i + 1),
         },
         options: {
             responsive: true,
@@ -915,7 +909,7 @@
     const sinr_chart = new Chart(ctx4, {
         type: 'line',
         data: {
-            labels: Array.from({length: 51}, (_, i) => -50 + i),
+            labels: Array.from({length: 50}, (_, i) => i + 1),
         },
         options: {
             responsive: true,
@@ -965,7 +959,7 @@
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            return `UE ${context.dataset.ueid}: ${context.raw}`;
+                            return `Y: ${context.raw}`;
                         }
                     }
                 }
@@ -976,8 +970,7 @@
     const retx_chart = new Chart(ctx5, {
         type: 'line',
         data: {
-            labels: Array.from({length: 51}, (_, i) => -50 + i),
-
+            labels: Array.from({length: 50}, (_, i) => i + 1),
         },
         options: {
             responsive: true,
@@ -1027,7 +1020,7 @@
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            return `UE ${context.dataset.ueid}: ${context.raw}`;
+                            return `Y: ${context.raw}`;
                         }
                     }
                 }
@@ -1038,8 +1031,7 @@
     const prb_usage_chart = new Chart(ctx6, {
         type: 'line',
         data: {
-            labels: Array.from({length: 51}, (_, i) => -50 + i),
-
+            labels: Array.from({length: 50}, (_, i) => i + 1),
         },
         options: {
             responsive: true,
@@ -1101,30 +1093,8 @@
         fetch('/refresh-data')
                 .then(response => response.json())
                 .then(data => {
-
-                    if (data.simulation_status === 'off') {
-                        return;
-                    }
-                    const cellColors = [
-                        '#1f77b4', '#9467bd', '#2ca02c', '#d62728', '#ff7f0e',
-                        '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
-                        '#9e4f96', '#e57373', '#66c2a5', '#ffcc00', '#b3b3b3',
-                        '#ff1f7a', '#6b5b95', '#4daf4a', '#f4b400', '#4e73df'
-                    ];
-
-                    const ueColors = [
-                        '#f39c12', '#8e44ad', '#e74c3c', '#2ecc71', '#3498db',
-                        '#9b59b6', '#34495e', '#f1c40f', '#1abc9c', '#d35400',
-                        '#8e44ad', '#27ae60', '#2980b9', '#16a085', '#e67e22',
-                        '#f7b7a3', '#c0392b', '#9b59b6', '#e91e63', '#f44336'
-                    ];
-
                     const cellColorMap = new Map(data.cells.map((cell, index) => [
                         cell.cell_id, cellColors[index % cellColors.length]
-                    ]));
-
-                    const ueColorMap = new Map(data.ues.map((ue, index) => [
-                        ue.ue_id, cellColors[index % ueColors.length]
                     ]));
 
                     const simIdLabel = document.getElementById('simid_label');
@@ -1136,6 +1106,22 @@
                         joinLabel.textContent = ''
                         simIdLabel.textContent = '';
                     }
+                    const esCheckboxDiv = document.getElementById('es-checkbox-cells');
+                    esCheckboxDiv.innerHTML = '';
+                    data.cells.forEach((cell, index) => {
+                        const tabButton = document.createElement('div');
+                        tabButton.className = 'tab-button';
+                        const label = document.createElement('label');
+                        label.htmlFor = `es-cell-${index + 1}`;
+                        label.textContent = `Cell ${index + 1}`;
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = `es-cell-${index + 1}`;
+                        checkbox.name = `es-cell-${index + 1}`;
+                        tabButton.appendChild(label);
+                        tabButton.appendChild(checkbox);
+                        esCheckboxDiv.appendChild(tabButton);
+                    });
 
                     const cellData = data.cells.map(cell => ({
                         x: cell.x_position,
@@ -1170,23 +1156,19 @@
 
                     myChart.update();
 
-
                     const esState = data.es_state;
                     Object.keys(esState).forEach(cellId => {
-                        const intCellId = parseInt(cellId, 10);
                         let dataset = es_mode_chart.data.datasets.find(d => d.label === `Cell ${cellId}`);
+
                         if (!dataset) {
                             dataset = {
                                 label: `Cell ${cellId}`,
                                 data: Array(es_mode_chart.data.labels.length).fill(0),
-                                backgroundColor: cellColorMap.get(intCellId),
-                                borderColor: cellColorMap.get(intCellId),
-                                borderWidth: 2,
+                                backgroundColor: cellColorMap.get(cellId),
                                 fill: false
                             };
                             es_mode_chart.data.datasets.push(dataset);
                         }
-
                         const currentValue = esState[cellId] !== null && esState[cellId] !== undefined ? esState[cellId] : 0;
                         dataset.data.push(currentValue);
                         if (dataset.data.length > es_mode_chart.data.labels.length) {
@@ -1197,90 +1179,61 @@
 
                     const sinr = data.sinr;
                     Object.keys(sinr).forEach(ueId => {
-                        const intUeId = parseInt(ueId, 10);
                         let dataset = sinr_chart.data.datasets.find(d => d.label === `Ue ${ueId}`);
-                        const ue = data.ues.find(ue => parseInt(ue.ue_id, 10) === intUeId);
-                        const serv_cell_id = parseInt(ue.L3servingSINR_CellID, 10);
-                        const cellColor = cellColorMap.get(serv_cell_id) || 'black';
+
                         if (!dataset) {
                             dataset = {
                                 label: `Ue ${ueId}`,
-                                ueid: intUeId,
                                 data: Array(sinr_chart.data.labels.length).fill(0),
-                                backgroundColor: 'black',
-                                borderColor: Array(sinr_chart.data.labels.length - 1).fill('white'),
-                                borderWidth: 0.5,
-                                fill: false,
-                                pointBackgroundColor: Array(sinr_chart.data.labels.length).fill('black'),
-                                pointBorderColor: Array(sinr_chart.data.labels.length).fill('black'),
-                                pointHoverRadius: 9,
+                                backgroundColor: cellColorMap.get(ueId),
+                                fill: false
                             };
                             sinr_chart.data.datasets.push(dataset);
                         }
-
                         const currentValue = sinr[ueId] !== null && sinr[ueId] !== undefined ? sinr[ueId] : 0;
                         dataset.data.push(currentValue);
-                        dataset.data.shift();
-                        dataset.pointBackgroundColor.push(cellColor);
-                        dataset.pointBackgroundColor.shift();
-                        dataset.pointBorderColor.push(cellColor);
-                        dataset.pointBorderColor.shift();
-                        dataset.backgroundColor = cellColor;
-
-
+                        if (dataset.data.length > sinr_chart.data.labels.length) {
+                            dataset.data.shift();
+                        }
                     });
-
                     sinr_chart.update();
 
                     const retx = data.retx;
                     Object.keys(retx).forEach(ueId => {
-                        const intUeId = parseInt(ueId, 10);
                         let dataset = retx_chart.data.datasets.find(d => d.label === `Ue ${ueId}`);
-                        const ue = data.ues.find(ue => parseInt(ue.ue_id, 10) === intUeId);
-                        const serv_cell_id = parseInt(ue.L3servingSINR_CellID, 10);
-                        const cellColor = cellColorMap.get(serv_cell_id) || 'black';
+
                         if (!dataset) {
                             dataset = {
                                 label: `Ue ${ueId}`,
-                                ueid: intUeId,
                                 data: Array(retx_chart.data.labels.length).fill(0),
-                                backgroundColor: 'black',
-                                borderColor: Array(retx_chart.data.labels.length - 1).fill('white'),
-                                borderWidth: 0.5,
-                                fill: false,
-                                pointBackgroundColor: Array(retx_chart.data.labels.length).fill('black'),
-                                pointBorderColor: Array(retx_chart.data.labels.length).fill('black'),
-                                pointHoverRadius: 9,
+                                backgroundColor: cellColorMap.get(ueId),
+                                fill: false
                             };
                             retx_chart.data.datasets.push(dataset);
                         }
 
-                        const currentValue = sinr[ueId] !== null && sinr[ueId] !== undefined ? sinr[ueId] : 0;
+                        const currentValue = retx[ueId] !== null && retx[ueId] !== undefined ? retx[ueId] : 0;
                         dataset.data.push(currentValue);
-                        dataset.data.shift();
-                        dataset.pointBackgroundColor.push(cellColor);
-                        dataset.pointBackgroundColor.shift();
-                        dataset.pointBorderColor.push(cellColor);
-                        dataset.pointBorderColor.shift();
-                        dataset.backgroundColor = cellColor;
+                        if (dataset.data.length > retx_chart.data.labels.length) {
+                            dataset.data.shift();
+                        }
                     });
                     retx_chart.update();
 
                     const prb_usage = data.prb;
                     Object.keys(prb_usage).forEach(cellId => {
                         let dataset = prb_usage_chart.data.datasets.find(d => d.label === `Cell ${cellId}`);
-                        const intCellId = parseInt(cellId, 10);
+
                         if (!dataset) {
                             dataset = {
                                 label: `Cell ${cellId}`,
                                 data: Array(prb_usage_chart.data.labels.length).fill(0),
-                                backgroundColor: cellColorMap.get(intCellId),
-                                borderColor: cellColorMap.get(intCellId),
-                                borderWidth: 2,
+                                backgroundColor: cellColorMap.get(cellId),
                                 fill: false
                             };
                             prb_usage_chart.data.datasets.push(dataset);
                         }
+
                         const currentValue = prb_usage[cellId] !== null && prb_usage[cellId] !== undefined ? prb_usage[cellId] : 0;
                         dataset.data.push(currentValue);
                         if (dataset.data.length > prb_usage_chart.data.labels.length) {
@@ -1294,42 +1247,53 @@
                     actualEsChart.data.datasets[0].data = [startingPower, currentPower];
                     actualEsChart.update();
 
+                    function formatAndDisplayCellData(data) {
+                        return data.map(cell => {
+                            return `<div class="object-box">${Object.entries(cell)
+                                    .map(([key, value]) => `${key}: <span class="value">${value === null || value === "" ? "N/A" : value}</span>`
+                        )
+                        .
+                            join("<br>")
+                        }
+                    </div>
+                        `;
+                    }).join("");
+                }
 
-                    document.getElementById('ueSourceData').innerHTML = formatAndDisplayCellData(data.ues);
-                    document.getElementById('cellSourceData').innerHTML = formatAndDisplayCellData(data.cells);
+                document.getElementById('ueSourceData').innerHTML = formatAndDisplayCellData(data.ues);
+                document.getElementById('cellSourceData').innerHTML = formatAndDisplayCellData(data.cells);
 
-                    const legendContainer = document.getElementById('chart-legend');
-                    legendContainer.innerHTML = '';
+                const legendContainer = document.getElementById('chart-legend');
+                legendContainer.innerHTML = '';
 
-                    cellData.forEach(cell => {
-                        const legendItem = document.createElement('div');
-                        legendItem.className = 'legend-item';
+                cellData.forEach(cell => {
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
 
-                        const colorBox = document.createElement('div');
-                        colorBox.className = 'legend-color-box';
-                        colorBox.style.backgroundColor = cell.backgroundColor;
+                    const colorBox = document.createElement('div');
+                    colorBox.className = 'legend-color-box';
+                    colorBox.style.backgroundColor = cell.backgroundColor;
 
-                        const legendText = document.createElement('span');
-                        legendText.className = 'legend-text';
-                        legendText.textContent = `
+                    const legendText = document.createElement('span');
+                    legendText.className = 'legend-text';
+                    legendText.textContent = `
                         Cell ${cell.cell_id} (${cell.type})`;
 
-                        legendItem.appendChild(colorBox);
-                        legendItem.appendChild(legendText);
-                        legendContainer.appendChild(legendItem);
-                    });
-
-                    const isChartViewActive = document.getElementById('chart-content').classList.contains('active');
-                    if (isChartViewActive) {
-                        legendContainer.classList.add('horizontal');
-                        legendContainer.classList.remove('vertical');
-                    } else {
-                        legendContainer.classList.add('vertical');
-                        legendContainer.classList.remove('horizontal');
-                    }
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(legendText);
+                    legendContainer.appendChild(legendItem);
                 });
-    }
 
+                const isChartViewActive = document.getElementById('chart-content').classList.contains('active');
+                if (isChartViewActive) {
+                    legendContainer.classList.add('horizontal');
+                    legendContainer.classList.remove('vertical');
+                } else {
+                    legendContainer.classList.add('vertical');
+                    legendContainer.classList.remove('horizontal');
+                }
+            });
+    }
 
     document.getElementById('form-toggle-button').addEventListener('click', () => {
         const formContainer = document.getElementById('form-container');
@@ -1343,7 +1307,6 @@
         }
     });
 
-    /*
     document.getElementById('toggleButton').addEventListener('click', () => {
         const formContainer = document.getElementById('form-container');
         const button = document.getElementById('toggleButton');
@@ -1355,408 +1318,331 @@
             button.textContent = 'Show A1 policy manager';
         }
     });
+
     const toggleButton = document.getElementById('toggleButton');
+    const frameContainer = document.getElementById('frameContainer');
+
+    // Toggle visibility of the container
     toggleButton.addEventListener('click', () => {
         frameContainer.classList.toggle('hidden');
     });
-    */
-    document.getElementById('toggleButton').addEventListener('click', () => {
-        alert('This functionality is currently disabled due to missing features');
-    });
-
-    const frameContainer = document.getElementById('frameContainer');
-
 
     // Fetch GET request
     const fetchData = (endpoint, responseId) => {
         fetch(endpoint)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    document.getElementById(responseId).innerText = `Error: ${error.message}`;
-                });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`
+                        HTTP
+                        error
+                        !status
+                    :
+                        ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById(responseId).innerText = `
+                        Error: ${error.message}`;
+            });
     };
 
     const host_ns3 = "{{ host_ns3 }}";
     // Assign GET buttons
     document.getElementById('fetchData1').addEventListener('click', () => {
-        const url = `http://${host_ns3}:9000/a1-p/policytypes`;
-        fetchData(url, 'response1');
+    const url = `
+                        http://${host_ns3}:9000/a1-p/policytypes`;
+                                fetchData(url, 'response1');
 
-    });
+                    }
 
-    document.getElementById('fetchData2').addEventListener('click', () => {
-        const param1 = document.getElementById('param1').value;
-        if (param1 == '' || isNaN(param1)) {
-            document.getElementById('response2').innerText = "'POLICY TYPE id:' must be fulfilled.";
-        } else {
-            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}`;
-            fetchData(url, 'response2');
-        }
-    });
+                )
+                    ;
 
-    document.getElementById('fetchData3').addEventListener('click', () => {
-        const param1 = document.getElementById('param1').value;
-        if (param1 === '' || isNaN(param1)) {
-            document.getElementById('response3').innerText = "'POLICY TYPE id:' must be fulfilled.";
-        } else {
-            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies`;
-            fetchData(url, 'response3');
-        }
-    });
-
-    document.getElementById('fetchData4').addEventListener('click', () => {
-        const param1 = document.getElementById('param1').value;
-        const param2 = document.getElementById('param2').value;
-        if (param1 === '' || isNaN(param1)) {
-            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
-        } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
-            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
-        } else {
-            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}/status`;
-            fetchData(url, 'response4');
-        }
-    });
-
-    // Send PUT request
-    const sendPutRequest = (params, jsonId, responseId, endpoint) => {
-        const jsonPayload = document.getElementById(jsonId).value;
-        const param1 = document.getElementById('param1').value;
-        if (param1 === '' || isNaN(param1)) {
-            document.getElementById(responseId).innerText = "'POLICY TYPE id:' must be fulfilled.";
-            return;
-        }
-        if (jsonPayload === '') {
-            document.getElementById(responseId).innerText = "A valid JSON should be provided";
-            return;
-        }
-        const queryString = params
-                .map(({id, name}) => `${encodeURIComponent(document.getElementById(id).value)}`)
-                .join('&');
-
-        try {
-            const payload = JSON.parse(jsonPayload); // Validate JSON
-            fetch(`${endpoint}${queryString}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload),
-            })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                    document.getElementById('fetchData2').addEventListener('click', () => {
+                        const param1 = document.getElementById('param1').value;
+                        if (param1 == '' || isNaN(param1)) {
+                            document.getElementById('response2').innerText = "'POLICY TYPE id:' must be fulfilled.";
+                        } else {
+                            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}`;
+                            fetchData(url, 'response2');
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
-                    })
-                    .catch(error => {
-                        document.getElementById(responseId).innerText = `Error: ${error.message}`;
                     });
-        } catch (err) {
-            document.getElementById(responseId).innerText = `Invalid JSON: ${err.message}`;
-        }
-    };
 
-    // Assign PUT buttons
-    document.getElementById('sendPut1').addEventListener('click', () => {
-        const url = `http://${host_ns3}:9000/a1-p/policytypes/`;
-        sendPutRequest(
-                [{id: 'param1', name: 'parameter'}],
-                'putJson1',
-                'putResponse1',
-                url
-        );
-    });
-
-    const sendPutRequest2 = (param1, param2, jsonPayload, responseId) => {
-        const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}`;
-        try {
-            const bodyPayload = JSON.stringify(jsonPayload);
-            fetch(url, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: bodyPayload
-            })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                    document.getElementById('fetchData3').addEventListener('click', () => {
+                        const param1 = document.getElementById('param1').value;
+                        if (param1 === '' || isNaN(param1)) {
+                            document.getElementById('response3').innerText = "'POLICY TYPE id:' must be fulfilled.";
+                        } else {
+                            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies`;
+                            fetchData(url, 'response3');
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Display the response in the specified element
-                        document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
-                    })
-                    .catch(error => {
-                        // Display error messages
-                        document.getElementById(responseId).innerText = `Error: ${error.message}`;
                     });
-        } catch (err) {
-            // Display error for invalid JSON
-            document.getElementById(responseId).innerText = `Invalid JSON payload: ${err.message}`;
-        }
-    };
 
-    document.getElementById('sendPut2').addEventListener('click', () => {
-        const param1 = document.getElementById('param1').value;
-        const param2 = document.getElementById('param2').value;
-        const jsonText = document.getElementById('putJson2').value;
-        if (param1 === '' || isNaN(param1)) {
-            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
-            return;
-        } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
-            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
-            return;
-        } else if (jsonText === '') {
-            document.getElementById('putResponse2').innerText = "A valid JSON should be provided";
-            return;
-        }
-        const jsonPayload = JSON.parse(jsonText || '{}');
-        sendPutRequest2(param1, param2, jsonPayload, 'putResponse2');
-    });
+                    document.getElementById('fetchData4').addEventListener('click', () => {
+                        const param1 = document.getElementById('param1').value;
+                        const param2 = document.getElementById('param2').value;
+                        if (param1 === '' || isNaN(param1)) {
+                            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
+                        } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
+                            document.getElementById('response4').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled";
+                        } else {
+                            const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}/status`;
+                            fetchData(url, 'response4');
+                        }
+                    });
 
-    document.getElementById('chart-tab').addEventListener('click', () => {
-        document.getElementById('chart-content').classList.add('active');
-        document.getElementById('data-content').classList.remove('active');
-        document.getElementById('chart-content').style.display = 'flex'
-        document.getElementById('es-content').classList.remove('active');
-        document.getElementById('chart-tab').classList.add('active');
-        document.getElementById('data-tab').classList.remove('active');
-        document.getElementById('es-tab').classList.remove('active');
-        updateChart();
-    });
+                    // Send PUT request
+                    const sendPutRequest = (params, jsonId, responseId, endpoint) => {
+                        const jsonPayload = document.getElementById(jsonId).value;
+                        const param1 = document.getElementById('param1').value;
+                        if (param1 === '' || isNaN(param1)) {
+                            document.getElementById(responseId).innerText = "'POLICY TYPE id:' must be fulfilled.";
+                            return;
+                        }
+                        if (jsonPayload === '') {
+                            document.getElementById(responseId).innerText = "A valid JSON should be provided";
+                            return;
+                        }
+                        const queryString = params
+                                .map(({id, name}) => `${encodeURIComponent(document.getElementById(id).value)}`)
+                                .join('&');
 
-    document.getElementById('data-tab').addEventListener('click', () => {
-        document.getElementById('chart-content').classList.remove('active');
-        document.getElementById('data-content').classList.add('active');
-        document.getElementById('chart-content').style.display = 'flex'
-        document.getElementById('es-content').classList.remove('active');
-        document.getElementById('chart-tab').classList.remove('active');
-        document.getElementById('data-tab').classList.add('active');
-        document.getElementById('es-tab').classList.remove('active');
-        updateChart();
-    });
+                        try {
+                            const payload = JSON.parse(jsonPayload); // Validate JSON
+                            fetch(`${endpoint}${queryString}`, {
+                                method: 'PUT',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify(payload),
+                            })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(`HTTP error! status: ${response.status}`);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+                                    })
+                                    .catch(error => {
+                                        document.getElementById(responseId).innerText = `Error: ${error.message}`;
+                                    });
+                        } catch (err) {
+                            document.getElementById(responseId).innerText = `Invalid JSON: ${err.message}`;
+                        }
+                    };
 
-    document.getElementById('es-tab').addEventListener('click', () => {
-        document.getElementById('chart-content').classList.remove('active');
-        document.getElementById('data-content').classList.remove('active');
-        document.getElementById('chart-content').style.display = 'none'
-        document.getElementById('es-content').classList.add('active');
-        document.getElementById('chart-tab').classList.remove('active');
-        document.getElementById('data-tab').classList.remove('active');
-        document.getElementById('es-tab').classList.add('active');
-        updateChart();
-    });
+                    // Assign PUT buttons
+                    document.getElementById('sendPut1').addEventListener('click', () => {
+                        const url = `http://${host_ns3}:9000/a1-p/policytypes/`;
+                        sendPutRequest(
+                                [{id: 'param1', name: 'parameter'}],
+                                'putJson1',
+                                'putResponse1',
+                                url
+                        );
+                    });
 
-    document.getElementById('simulationForm').addEventListener('submit', (event) => {
-        event.preventDefault();
-    });
+                    const sendPutRequest2 = (param1, param2, jsonPayload, responseId) => {
+                        const url = `http://${host_ns3}:9000/a1-p/policytypes/${param1}/policies/${param2}`;
+                        try {
+                            const bodyPayload = JSON.stringify(jsonPayload);
+                            fetch(url, {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: bodyPayload
+                            })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(`HTTP error! status: ${response.status}`);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        // Display the response in the specified element
+                                        document.getElementById(responseId).innerText = JSON.stringify(data, null, 2);
+                                    })
+                                    .catch(error => {
+                                        // Display error messages
+                                        document.getElementById(responseId).innerText = `Error: ${error.message}`;
+                                    });
+                        } catch (err) {
+                            // Display error for invalid JSON
+                            document.getElementById(responseId).innerText = `Invalid JSON payload: ${err.message}`;
+                        }
+                    };
 
-    setInterval(updateChart, 3000);
-    updateChart();
+                    document.getElementById('sendPut2').addEventListener('click', () => {
+                        const param1 = document.getElementById('param1').value;
+                        const param2 = document.getElementById('param2').value;
+                        const jsonText = document.getElementById('putJson2').value;
+                        if (param1 === '' || isNaN(param1)) {
+                            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
+                            return;
+                        } else if (param2 === '' || !(typeof param2 === 'string' || param2 instanceof String)) {
+                            document.getElementById('putResponse2').innerText = "'POLICY TYPE id:' and 'POLICY INSTANCE id:' must be fulfilled.";
+                            return;
+                        } else if (jsonText === '') {
+                            document.getElementById('putResponse2').innerText = "A valid JSON should be provided";
+                            return;
+                        }
+                        const jsonPayload = JSON.parse(jsonText || '{}');
+                        sendPutRequest2(param1, param2, jsonPayload, 'putResponse2');
+                    });
 
-    function sendForm(endpoint) {
-        const form = document.getElementById('simulationForm');
-        const formData = new FormData(form);
-        const data = {};
+                    document.getElementById('chart-tab').addEventListener('click', () => {
+                        document.getElementById('chart-content').classList.add('active');
+                        document.getElementById('data-content').classList.remove('active');
+                        document.getElementById('chart-content').style.display = 'flex'
+                        document.getElementById('es-content').classList.remove('active');
+                        document.getElementById('chart-tab').classList.add('active');
+                        document.getElementById('data-tab').classList.remove('active');
+                        document.getElementById('es-tab').classList.remove('active');
+                        updateChart();
+                    });
 
-        formData.forEach((value, key) => {
-            if (value.trim() !== '') {
-                data[key] = value;
-            }
-        });
+                    document.getElementById('data-tab').addEventListener('click', () => {
+                        document.getElementById('chart-content').classList.remove('active');
+                        document.getElementById('data-content').classList.add('active');
+                        document.getElementById('chart-content').style.display = 'flex'
+                        document.getElementById('es-content').classList.remove('active');
+                        document.getElementById('chart-tab').classList.remove('active');
+                        document.getElementById('data-tab').classList.add('active');
+                        document.getElementById('es-tab').classList.remove('active');
+                        updateChart();
+                    });
 
-        console.log('Data to be sent:', data);
-        const statusLabel = document.getElementById('status_label');
-        const startButton = document.getElementById('start_button')
-        const stopButton = document.getElementById('stop_button')
-        const warninglabel = document.getElementById('warning_label')
-        statusLabel.textContent = 'Simulation starting';
-        startButton.disabled = true
-        stopButton.disabled = false
-        resetSim()
-        fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                    document.getElementById('es-tab').addEventListener('click', () => {
+                        document.getElementById('chart-content').classList.remove('active');
+                        document.getElementById('data-content').classList.remove('active');
+                        document.getElementById('chart-content').style.display = 'none'
+                        document.getElementById('es-content').classList.add('active');
+                        document.getElementById('chart-tab').classList.remove('active');
+                        document.getElementById('data-tab').classList.remove('active');
+                        document.getElementById('es-tab').classList.add('active');
+                        updateChart();
+                    });
+
+                    document.getElementById('simulationForm').addEventListener('submit', (event) => {
+                        event.preventDefault();
+                    });
+
+                    setInterval(updateChart, 3000);
+                    updateChart();
+
+                    function sendForm(endpoint) {
+                        const form = document.getElementById('simulationForm');
+                        const formData = new FormData(form);
+                        const data = {};
+
+                        formData.forEach((value, key) => {
+                            if (value.trim() !== '') {
+                                data[key] = value;
+                            }
+                        });
+
+                        console.log('Data to be sent:', data);
+                        const statusLabel = document.getElementById('status_label');
+                        const startButton = document.getElementById('start_button')
+                        const stopButton = document.getElementById('stop_button')
+                        const warninglabel = document.getElementById('warning_label')
+                        statusLabel.textContent = 'Simulation starting';
+                        startButton.disabled = true
+                        stopButton.disabled = false
+
+                        fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Success:', data);
+                                    statusLabel.textContent = 'Simulation running';
+                                    warninglabel.textContent = 'Warning: if there are no Cells/UEs on the grid after max 30s, please check if ns3 is running properly typing in terminal "ps -a" or "cat ns-3-mmwave-oran/ns3_run.log"';
+
+                                })
+                                .catch((error) => {
+                                    console.error('Error:', error);
+                                    statusLabel.textContent = 'Error while starting up the simulation';
+                                    startButton.disabled = false
+                                    stopButton.disabled = true
+                                });
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Success:', data);
-                    statusLabel.textContent = 'Simulation running';
-                    warninglabel.textContent = 'Warning: if there are no Cells/UEs on the grid after max 30s, please check if ns3 is running properly typing in terminal "ps -a" or "cat ns-3-mmwave-oran/ns3_run.log"';
 
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    statusLabel.textContent = 'Error while starting up the simulation';
-                    startButton.disabled = false
-                    stopButton.disabled = true
-                });
-    }
+                    function stopSim(endpoint) {
+                        const statusLabel = document.getElementById('status_label');
+                        statusLabel.textContent = 'Stopping simulation';
+                        const startButton = document.getElementById('start_button')
+                        const stopButton = document.getElementById('stop_button')
+                        const resetButton = document.getElementById('reset_button')
+                        startButton.disabled = false
+                        stopButton.disabled = true
+                        resetButton.disabled = false
+                        fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Success:', data);
+                                    statusLabel.textContent = 'Simulation stopped';
+                                })
+                                .catch((error) => {
+                                    console.error('Error:', error);
+                                    statusLabel.textContent = 'Error encountered while stopping the simulation';
 
-    function stopSim(endpoint) {
-        const statusLabel = document.getElementById('status_label');
-        statusLabel.textContent = 'Stopping simulation';
-        const startButton = document.getElementById('start_button')
-        const stopButton = document.getElementById('stop_button')
-        const resetButton = document.getElementById('reset_button')
-        startButton.disabled = false
-        stopButton.disabled = true
-        resetButton.disabled = false
-        fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                                });
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Success:', data);
-                    statusLabel.textContent = 'Simulation stopped';
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    statusLabel.textContent = 'Error encountered while stopping the simulation';
 
-                });
-    }
+                    function resetSim(endpoint) {
+                        const statusLabel = document.getElementById('status_label');
+                        statusLabel.textContent = 'Resetting simulation';
+                        const resetButton = document.getElementById('reset_button')
+                        resetButton.disabled = true
+                        const sim_id_label = document.getElementById('simid_label')
+                        sim_id_label.textContent = "None"
+                        fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Success:', data);
+                                    statusLabel.textContent = 'off';
 
-    function resetSim(endpoint) {
-        const statusLabel = document.getElementById('status_label');
-        statusLabel.textContent = 'Resetting simulation';
-        const resetButton = document.getElementById('reset_button')
-        resetButton.disabled = true
-        const sim_id_label = document.getElementById('simid_label')
-        sim_id_label.textContent = "None"
-        const esChart = Chart.getChart('es-mode-chart');
-        esChart.data.datasets = [];
-        esChart.update();
-        const sinrChart = Chart.getChart('sinr-chart');
-        sinrChart.data.datasets = [];
-        sinrChart.update();
-        const retxChart = Chart.getChart('retx-chart');
-        retxChart.data.datasets = [];
-        retxChart.update();
-        const prbChart = Chart.getChart('prb-usage-chart');
-        prbChart.data.datasets = [];
-        prbChart.update();
-        const diffChart = Chart.getChart('es_diff');
-        diffChart.data.datasets = [];
-        diffChart.update();
-
-        fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                                })
+                                .catch((error) => {
+                                    console.error('Error:', error);
+                                    statusLabel.textContent = 'Error encountered while resetting the simulation';
+                                });
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Success:', data);
-                    statusLabel.textContent = 'off';
-
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    statusLabel.textContent = 'Error encountered while resetting the simulation';
-                });
-    }
-
-
-    function startEs() {
-        const esStatusLabel = document.getElementById('es_status_label')
-        esStatusLabel.textContent = 'Sending start request to a xApp'
-
-        fetch('/startes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-                .then(response => {
-                    if (response.ok) {
-                        esStatusLabel.textContent = 'on';
-                    } else {
-                        esStatusLabel.textContent = 'Unexpected error has occurred';
-                    }
-                })
-                .catch(error => {
-                    if (error.name === 'AbortError') {
-                        esStatusLabel.textContent = 'Connection timed out, try again later';
-                    } else {
-                        console.error('Error:', error);
-                        esStatusLabel.textContent = 'Unexpected error has occurred';
-                    }
-                });
-    }
-
-    function stopEs() {
-        const esStatusLabel = document.getElementById('es_status_label')
-        esStatusLabel.textContent = 'Sending stop request to a xApp'
-
-        fetch('/stopes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-                .then(response => {
-                    if (response.ok) {
-                        esStatusLabel.textContent = 'off';
-                    } else {
-                        esStatusLabel.textContent = 'Unexpected error has occurred';
-                    }
-                })
-                .catch(error => {
-                    if (error.name === 'AbortError') {
-                        esStatusLabel.textContent = 'Connection timed out, try again later';
-                    } else {
-                        console.error('Error:', error);
-                        esStatusLabel.textContent = 'Unexpected error has occurred';
-                    }
-                });
-    }
-
-    function formatAndDisplayCellData(data) {
-        return data.map(cell => {
-            return `<div class="object-box">${Object.entries(cell)
-                    .map(([key, value]) => `${key}: <span class="value">${value === null || value === "" ? "N/A" : value}</span>`
-        )
-        .
-            join("<br>")
-        }
-    </div>
-        `;
-                    }).join("");
-                }
 </script>
 </body>
 </html>
