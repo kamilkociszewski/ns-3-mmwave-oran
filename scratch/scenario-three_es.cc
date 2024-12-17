@@ -237,9 +237,10 @@ GetBSTX (Ptr<MmWaveEnbPhy> phy, uint16_t cellid)
     double val = phy->GetTxPower ();
     if (val == 0) {
         esON_list[cellid] = true;
-    } else (
-                esON_list[cellid] = false;
-            )
+    }else
+    {
+        esON_list[cellid] = false;
+    }
     NS_LOG_UNCOND ("Current TX power " << val << " for cell " << cellid);
 }
 
