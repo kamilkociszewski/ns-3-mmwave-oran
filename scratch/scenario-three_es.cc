@@ -231,6 +231,17 @@ GetESStates (Ptr<MmWaveEnbNetDevice> mmdev, uint16_t cellid)
     esON_list[cellid] = mmdev->GetESStates ();
     NS_LOG_UNCOND ("Current ES state " << esON_list[cellid] << " for cell " << cellid);
 }
+void
+GetBSTX (Ptr<MmWaveEnbPhy> phy, uint16_t cellid)
+{
+    double val = phy->GetTxPower ();
+    if (val == 0) {
+        esON_list[cellid] = true;
+    } else (
+                esON_list[cellid] = false;
+            )
+    NS_LOG_UNCOND ("Current TX power " << val << " for cell " << cellid);
+}
 
 void
 PrintPosition (Ptr<Node> node, int iterator, std::string Filename, uint64_t m_startTime)
@@ -770,6 +781,7 @@ main (int argc, char *argv[])
         uint16_t cell_id = mmdev->GetCellId ();
         for (int t = 1; t * 1 < simTime; t++) {
             Simulator::Schedule (Seconds (t * 0.1), &GetESStates, mmdev, cell_id);
+            Simulator::Schedule (Seconds (t * 0.1), &GetBSTX, enbPhy, cell_id);
         }
         if (cell_id == 2)
         {
