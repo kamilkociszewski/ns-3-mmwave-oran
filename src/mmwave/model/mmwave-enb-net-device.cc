@@ -638,16 +638,6 @@ SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
       phy->SetNoiseFigure (5); //default
     }
     esON_cellID = m_esON; //ES status flag
-    ////////test
-    double val_es = phy->GetTxPower ();
-    NS_LOG_UNCOND ("Current TX power " << val_es << " for cell " << cellid);
-    if (val_es==0)
-    {
-        esON_cellID = true; //ES status fla
-    } else {
-        esON_cellID = false;
-    }
-    ////////////end of test
 }
 void
   MmWaveEnbNetDevice::ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu) {
