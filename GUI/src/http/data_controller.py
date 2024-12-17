@@ -48,7 +48,6 @@ async def refresh_data(request: Request, simulation: Simulation = Depends(get_si
     for ue in updated_simulation.ues:
         sinr[ue.ue_id] = ue.L3servingSINR_dB
         retx[ue.ue_id] = ue.ErrTotalNbrDl
-
     return {
         "ues": [asdict(ue) for ue in updated_simulation.ues],
         "cells": [asdict(cell) for cell in updated_simulation.cells],
@@ -59,7 +58,8 @@ async def refresh_data(request: Request, simulation: Simulation = Depends(get_si
         "retx": retx,
         "prb": prb,
         "starting_power": updated_simulation.starting_power,
-        "current_power": updated_simulation.es_power,
+        "current_power": updated_simulation.current_power,
+        "simulation_status": updated_simulation.simulation_status,
     }
 
 
@@ -105,6 +105,7 @@ async def start_simulation(request: Request):
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         print("Response from server:")
         print(result.stdout)
+        SimulationManager.start_simulation()
     except Exception as e:
         print(f"An error occurred: {e}")
     number_of_ues = int(form_data.get('N_Ues', 2))
@@ -133,6 +134,7 @@ async def stop_simulation():
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         print("Response from server:")
         print(result.stdout)
+        SimulationManager.stop_simulation()
     except Exception as e:
         print(f"An error occurred: {e}")
 

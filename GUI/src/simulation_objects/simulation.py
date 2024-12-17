@@ -23,7 +23,8 @@ class Simulation:
         self.ue_history = []
         self.cell_history = []
         self.starting_power = 0
-        self.es_power = 0
+        self.current_power = 0
+        self.simulation_status = 'on'
         if number_of_ues > 0 and number_of_cells > 0:
             self.max_x, self.max_y = self.get_charts_max_axis_value()
             self.ues, self.cells, sim_id_from_ue = self.get_simulation_data(self.number_of_ues, self.number_of_cells)
@@ -33,6 +34,7 @@ class Simulation:
                 self.sim_id = sim_id
             else:
                 self.sim_id = sim_id_from_ue
+            
         else:
             self.max_x = 6000
             self.max_y = 6000
@@ -135,6 +137,20 @@ class Simulation:
             if result:
                 points = list(result.get_points(measurement=measurement_name))
                 value = points[0].get('last')
+                if isinstance(value, float) and value.is_integer():
+                    return int(value)
+                return value
+            else:
+                return None
+        except Exception as e:
+            raise Exception(f"Error querying InfluxDB: {e}")
+
+    def get_first_value_from_measurement(self, measurement_name: str) -> float | str | int | None:
+        try:
+            result = self.db_client.query(f'SELECT FIRST("value") FROM "{measurement_name}" where time > {self.simulation_start_time}')
+            if result:
+                points = list(result.get_points(measurement=measurement_name))
+                value = points[0].get('first')
                 if isinstance(value, float) and value.is_integer():
                     return int(value)
                 return value
