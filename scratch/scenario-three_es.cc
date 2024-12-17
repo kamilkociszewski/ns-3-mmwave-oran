@@ -242,6 +242,7 @@ GetBSTX (Ptr<MmWaveEnbPhy> phy, uint16_t cellid)
         esON_list[cellid] = false;
     }
     NS_LOG_UNCOND ("Current TX power " << val << " for cell " << cellid);
+    NS_LOG_UNCOND ("Current ES state " << esON_list[cellid] << " for cell " << cellid);
 }
 
 void
