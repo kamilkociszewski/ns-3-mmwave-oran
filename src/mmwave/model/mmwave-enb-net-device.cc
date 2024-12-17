@@ -640,6 +640,7 @@ SetBSTX (Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON)
     esON_cellID = m_esON; //ES status flag
     ////////test
     double val_es = phy->GetTxPower ();
+    NS_LOG_UNCOND ("Current TX power " << val_es << " for cell " << cellid);
     if (val_es==0)
     {
         esON_cellID = true; //ES status fla
