@@ -192,7 +192,7 @@ SetBSTX(Ptr<MmWaveEnbPhy> phy, int val, uint16_t cellid, bool m_esON) {
     } else {
         NS_LOG_UNCOND ("Cell turned on " << cellid);
     }
-    esON_list[cellid] = m_esON; //ES status flag
+    //esON_list[cellid] = m_esON; //ES status flag
     phy->SetTxPower(val); //set Cell TX power
     if (val == 0) {
         phy->SetNoiseFigure(100); //high noise
@@ -749,7 +749,7 @@ main(int argc, char *argv[]) {
         Ptr<MmWaveEnbNetDevice> mmdev =
                 DynamicCast<MmWaveEnbNetDevice>(mmWaveEnbNodes.Get(i)->GetDevice(0));
         uint16_t cell_id = mmdev->GetCellId();
-        for (int t = 1; t * 1 < simTime; t++) {
+        for (int t = 1; t * 0.1 < simTime; t++) {
             //Simulator::Schedule (Seconds (t * 0.1), &GetESStates, mmdev, cell_id);
             Simulator::Schedule(Seconds(t * 0.1), &GetBSTX, enbPhy, cell_id);
         }
