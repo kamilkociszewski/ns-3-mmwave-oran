@@ -141,14 +141,18 @@ PrintGnuplottableEnbListToFile(uint64_t m_startTime) {
                 }
                 auto ueMap = mmdev->GetUeMap();
                 Ptr<MmWaveEnbPhy> enbPhy = node->GetDevice(j)->GetObject<MmWaveEnbNetDevice>()->GetPhy();
-                double es_power = enbPhy->GetTxPower();
                 for (const auto &ue: ueMap) {
                     uint64_t imsi_assoc = ue.second->GetImsi();
                     //NS_LOG_UNCOND ("IMSI: " << imsi_assoc << " associated with cell: "  << mmdev->GetCellId ());
                     ue_assoc_list[imsi_assoc - 1] = mmdev->GetCellId();
                 }
                 uint16_t cell_id = mmdev->GetCellId();
-
+                double es_power = enbPhy->GetTxPower();
+                if (es_power == 0) {
+                    esON_list[cell_id] = true;
+                } else {
+                    esON_list[cell_id] = false;
+                }
                 //outFile2 << timestamp << "," << enbdev->GetCellId() << "," << pos.x << "," << pos.y << pos.z << std::endl;
                 outFile2 << timestamp << "," << cell_id << "," << pos.x << "," << pos.y << ","
                          << m_startTime << "," << esON_list[cell_id] << "," << es_power << std::endl;
@@ -207,8 +211,8 @@ GetESStates (Ptr<MmWaveEnbNetDevice> mmdev, uint16_t cellid)
     esON_list[cellid] = mmdev->GetESStates ();
     NS_LOG_UNCOND ("Current ES state " << esON_list[cellid] << " for cell " << cellid);
 }*/
-void
-GetBSTX(Ptr<MmWaveEnbPhy> phy, uint16_t cellid) {
+/*void
+(Ptr<MmWaveEnbPhy> phy, uint16_t cellid) {
     double val = phy->GetTxPower();
     if (val == 0) {
         esON_list[cellid] = true;
@@ -217,7 +221,7 @@ GetBSTX(Ptr<MmWaveEnbPhy> phy, uint16_t cellid) {
     }
    // NS_LOG_UNCOND ("Current TX power " << val << " for cell " << cellid);
     NS_LOG_UNCOND ("Current ES state " << esON_list[cellid] << " for cell " << cellid);
-}
+}*/
 
 void
 PrintPosition(Ptr<Node> node, int iterator, std::string Filename, uint64_t m_startTime) {
@@ -743,7 +747,7 @@ main(int argc, char *argv[]) {
                                 j + UE_iterator, ue_poss_out, t_startTime_simid);
         }
     }
-    for (uint32_t i = 0; i < mmWaveEnbNodes.GetN(); i++) {
+/*    for (uint32_t i = 0; i < mmWaveEnbNodes.GetN(); i++) {
         Ptr<MmWaveEnbPhy> enbPhy =
                 mmWaveEnbNodes.Get(i)->GetDevice(0)->GetObject<MmWaveEnbNetDevice>()->GetPhy();
         Ptr<MmWaveEnbNetDevice> mmdev =
@@ -751,9 +755,9 @@ main(int argc, char *argv[]) {
         uint16_t cell_id = mmdev->GetCellId();
         for (int t = 1; t * 0.1 < simTime; t++) {
             //Simulator::Schedule (Seconds (t * 0.1), &GetESStates, mmdev, cell_id);
-            Simulator::Schedule(Seconds(t * 0.1), &GetBSTX, enbPhy, cell_id);
+           // Simulator::Schedule(Seconds(t * 0.1), &GetBSTX, enbPhy, cell_id);
         }
-       /* if (cell_id == 2) {
+       *//* if (cell_id == 2) {
             NS_LOG_UNCOND ("Found Cell " << cell_id << ", set TX power adjustment");
             //Simulator::Schedule (Seconds (1), &SetBSTX, enbPhy, 30, cell_id, false);
             for (int t = 1; t * 2 < simTime; t++) {
@@ -761,8 +765,8 @@ main(int argc, char *argv[]) {
                 Simulator::Schedule(Seconds(tim), &SetBSTX, enbPhy, 0, cell_id, true);
                 Simulator::Schedule(Seconds(tim + 1), &SetBSTX, enbPhy, 30, cell_id, false);
             }
-        }*/
-    }
+        }*//*
+    }*/
 
     if (enableTraces) {
         mmwaveHelper->EnableTraces();
