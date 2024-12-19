@@ -624,7 +624,8 @@
                 </div>
                 <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
                     <label style="font-size: 20px; font-weight: bold; color: white;">
-                        Dots on plot represent UEs cell allocation (DOT color = CELL color)
+                        Dots on plot represent UEs cell allocation (DOT color = CELL color), line colors represent
+                        unique UEs
                     </label>
                 </div>
             </div>
@@ -779,15 +780,8 @@
     const actualEsChart = new Chart(ctx2, {
         type: 'bar',
         data: {
-            labels: [
-                'Network power usage\nwith ES disabled',
-                'Current network\npower usage',
-            ],
-            datasets: [{
-                label: 'Difference in power consumption between modes',
-                data: [0, 0],
-                backgroundColor: ['darkgray', 'green'],
-            }]
+            labels: [],
+            datasets: []
         },
         options: {
             responsive: true,
@@ -1290,19 +1284,31 @@
                     });
                     prb_usage_chart.update();
 
-                    if (actualEsChart && actualEsChart.data && actualEsChart.data.datasets.length > 0) {
+                    if (actualEsChart) {
                         const startingPower = data.starting_power || 0;
                         const currentPower = data.current_power || 0;
 
-                        actualEsChart.data.datasets[0].data = [startingPower, currentPower];
-                        actualEsChart.data.labels = [
-                            'Network power usage\nwith ES disabled',
-                            'Current network\npower usage'
-                        ];
+                        if (actualEsChart.data.datasets.length === 0) {
+                            actualEsChart.data.datasets.push({
+                                label: 'Difference in power consumption between modes',
+                                data: [startingPower, currentPower],
+                                backgroundColor: ['darkgray', 'green'],
+                            });
+                            actualEsChart.data.labels = [
+                                'Network power usage\nwith ES disabled',
+                                'Current network\npower usage'
+                            ];
+                        } else {
+                            actualEsChart.data.datasets[0].data = [startingPower, currentPower];
+                            actualEsChart.data.labels = [
+                                'Network power usage\nwith ES disabled',
+                                'Current network\npower usage'
+                            ];
+                        }
 
                         actualEsChart.update();
                     } else {
-                        console.error("Chart datasets are not initialized. Cannot update data.");
+                        console.error("Chart instance is not initialized.");
                     }
 
 
@@ -1573,7 +1579,7 @@
         event.preventDefault();
     });
 
-    setInterval(updateChart, 3000);
+    setInterval(updateChart, 1000);
     updateChart();
 
     function sendForm(endpoint) {
