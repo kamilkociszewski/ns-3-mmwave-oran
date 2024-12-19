@@ -486,7 +486,7 @@
             </div>
             <button type="button" onclick="sendForm('/start_simulation')" id="start_button">Start new</button>
             <button type="button" onclick="stopSim('/stop_simulation')" id="stop_button" disabled>Stop</button>
-            <button type="button" onclick="resetSim('/reset_simulation')" id="reset_button" disabled>Reset</button>
+            <button type="button" onclick="resetSim('/reset_simulation')" id="reset_button" >Reset</button>
             <div><label id="warning_label"></label></div>
             <div></div>
             <div></div>
@@ -1095,9 +1095,6 @@
                 .then(response => response.json())
                 .then(data => {
 
-                    if (data.simulation_status === 'off') {
-                        return;
-                    }
                     const cellColors = [
                         '#1f77b4', '#9467bd', '#2ca02c', '#d62728', '#ff7f0e',
                         '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
@@ -1154,7 +1151,6 @@
                     myChart.data.datasets[1].data = cellData;
                     myChart.data.datasets[1].backgroundColor = cellData.map(cell => cell.backgroundColor);
                     myChart.data.datasets[1].pointStyle = cellData.map(cell => cell.pointStyle);
-
                     var chartDimensions = data.max_x_max_y;
                     myChart.options.scales.x.min = 0;
                     myChart.options.scales.x.max = chartDimensions[0];
@@ -1163,7 +1159,9 @@
 
                     myChart.update();
 
-
+                    if (data.simulation_status === 'off') {
+                        return;
+                    }
                     const esState = data.es_state;
                     Object.keys(esState).forEach(cellId => {
                         const intCellId = parseInt(cellId, 10);
@@ -1249,7 +1247,7 @@
                             retx_chart.data.datasets.push(dataset);
                         }
 
-                        const currentValue = sinr[ueId] !== null && sinr[ueId] !== undefined ? sinr[ueId] : 0;
+                        const currentValue = retx[ueId] !== null && retx[ueId] !== undefined ? retx[ueId] : 0;
                         dataset.data.push(currentValue);
                         dataset.data.shift();
                         dataset.pointBackgroundColor.push(cellColor);
@@ -1307,6 +1305,7 @@
                         }
 
                         actualEsChart.update();
+                        11
                     } else {
                         console.error("Chart instance is not initialized.");
                     }
@@ -1579,7 +1578,7 @@
         event.preventDefault();
     });
 
-    setInterval(updateChart, 1000);
+    setInterval(updateChart, 2000);
     updateChart();
 
     function sendForm(endpoint) {
